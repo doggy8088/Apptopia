@@ -190,7 +190,7 @@ class TestDocumentProcessor:
         # Get knowledge base
         kb = processor.get_knowledge_base()
         assert kb is not None
-        assert len(kb.documents) == 1
+        assert kb.total_documents == 1
         assert kb.total_chunks > 0
     
     def test_get_stats(self, tmp_path):

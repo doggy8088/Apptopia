@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 import time
 
-from ..models.document import Document, DocumentMetadata, DocumentChunk, Relationship, KnowledgeBase
+from ..models.document import Document, DocumentMetadata, DocumentChunk, Relationship, KnowledgeBase, DocumentStatus
 from ..utils.file_scanner import FileScanner, FileChange
 from ..parsers.obsidian_parser import ObsidianParser
 from .chunker import DocumentChunker
@@ -180,8 +180,8 @@ class DocumentProcessor:
                 try:
                     doc = future.result()
                     if doc:
-                        self.documents[doc.path] = doc
-                        logger.info(f"Successfully processed: {doc.path}")
+                        self.documents[doc.doc_id] = doc
+                        logger.info(f"Successfully processed: {doc.doc_id}")
                 except Exception as e:
                     stats.errors += 1
                     error_detail = {
@@ -228,7 +228,24 @@ class DocumentProcessor:
                 content = f.read()
             
             # Parse document
-            metadata, plain_text, extracted_data = self.parser.parse(content)
+            parsed_doc = self.parser.parse_content(content, title=path.name)
+            metadata_dict = parsed_doc.frontmatter
+            plain_text = parsed_doc.plain_text
+            extracted_data = {
+                'wikilinks': parsed_doc.wikilinks,
+                'tags': parsed_doc.tags,
+                'images': parsed_doc.images,
+                'headings': parsed_doc.headings
+            }
+            
+            # Create DocumentMetadata
+            metadata = DocumentMetadata(
+                tags=parsed_doc.tags or [],
+                aliases=parsed_doc.aliases or [],
+                title=parsed_doc.title or path.stem,
+                headings=parsed_doc.headings or [],
+                word_count=len(plain_text.split()) if plain_text else 0
+            )
             
             # Process images with OCR if present
             image_texts = []
@@ -261,7 +278,10 @@ class DocumentProcessor:
             for i, (chunk_text, embedding) in enumerate(zip(chunks_text, embeddings)):
                 chunk = DocumentChunk(
                     chunk_id=f"{path.stem}_{i}",
-                    text=chunk_text,
+                    document_id=str(path),
+                    content=chunk_text,
+                    start_line=i * 10,  # Approximate
+                    end_line=(i + 1) * 10,  # Approximate
                     embedding=embedding,
                     metadata={
                         'chunk_index': i,
@@ -273,21 +293,24 @@ class DocumentProcessor:
             
             # Store chunks in vector database
             if chunks:
-                self.vector_store.add_documents(
+                self.vector_store.add(
                     ids=[c.chunk_id for c in chunks],
                     embeddings=[c.embedding for c in chunks],
-                    documents=[c.text for c in chunks],
+                    documents=[c.content for c in chunks],
                     metadatas=[c.metadata for c in chunks]
                 )
             
             # Create document
             doc = Document(
-                path=str(path),
-                content=content,
+                doc_id=str(path),
+                file_path=path,
+                relative_path=path.relative_to(path.parent.parent) if path.parent.parent else path,
+                source_folder=str(path.parent),
+                raw_content=content,
+                parsed_content=parsed_doc.parsed_content,
                 metadata=metadata,
                 chunks=chunks,
-                relationships=[],  # Built later
-                embedding=embeddings[0] if embeddings else []
+                status=DocumentStatus.ACTIVE
             )
             
             return doc
@@ -310,7 +333,7 @@ class DocumentProcessor:
                 # Remove from vector store
                 chunk_ids = [c.chunk_id for c in doc.chunks]
                 if chunk_ids:
-                    self.vector_store.delete_documents(chunk_ids)
+                    self.vector_store.delete(chunk_ids)
                 
                 # Remove from memory
                 del self.documents[file_path]
@@ -330,7 +353,8 @@ class DocumentProcessor:
             relationships = []
             
             # 1. Extract wikilinks from content
-            wikilinks = self.parser.parse(doc.content)[2].get('wikilinks', [])
+            parsed_doc = self.parser.parse_content(doc.raw_content, title=Path(doc_path).stem)
+            wikilinks = parsed_doc.wikilinks or []
             
             # Find matching documents
             for link in wikilinks:
@@ -386,11 +410,16 @@ class DocumentProcessor:
         Returns:
             KnowledgeBase object
         """
+        from datetime import datetime
         return KnowledgeBase(
+            kb_id="default",
             name="AI知識++",
-            documents=list(self.documents.values()),
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
             source_folders=[],
-            total_chunks=sum(len(doc.chunks) for doc in self.documents.values())
+            total_documents=len(self.documents),
+            total_chunks=sum(len(doc.chunks) for doc in self.documents.values()),
+            total_relationships=sum(len(doc.relationships) for doc in self.documents.values())
         )
     
     def get_stats(self) -> Dict[str, Any]:
