@@ -18,7 +18,7 @@
 
 ```
 apps/
-└── [issue_id]/
+└── issue-N/                # N 是 Issue 編號
     ├── README.md              # 專案說明文件
     ├── package.json           # (如適用) Node.js 專案配置
     ├── requirements.txt       # (如適用) Python 依賴
@@ -30,7 +30,7 @@ apps/
 
 **規則：**
 
-- `[issue_id]` 格式為 `issue-N`，其中 N 是 Issue 的編號（例如：Issue #1 → `issue-1`, Issue #42 → `issue-42`）
+- 目錄命名格式為 `issue-N`，其中 N 是 Issue 的編號（例如：Issue #1 → `issue-1`, Issue #42 → `issue-42`）
 - 每個應用程式必須有獨立的 `README.md` 說明如何安裝、執行和測試
 - 保持各應用程式之間的獨立性，避免共享依賴造成的耦合
 
@@ -64,13 +64,13 @@ apps/
 ```
 .github/
 └── workflows/
-    ├── ci_[id].yml           # 專案專屬的 CI/CD 工作流程
+    ├── ci_N.yml              # 專案專屬的 CI/CD 工作流程，N 是 Issue 編號
     └── ...
 ```
 
 **規則：**
 
-- `[id]` 應該與 Issue 編號對應（例如：`ci_1.yml`, `ci_42.yml`）
+- 檔名格式為 `ci_N.yml`，其中 N 是 Issue 編號（例如：Issue #1 → `ci_1.yml`, Issue #42 → `ci_42.yml`）
 - 工作流程檔案應該只在相關目錄有變更時觸發
 
 ### 工作流程範本
@@ -78,17 +78,17 @@ apps/
 #### 基本結構
 
 ```yaml
-name: CI for Issue [id]
+name: CI for Issue N
 
 on:
   push:
     paths:
-      - 'apps/issue-[id]/**'
-      - '.github/workflows/ci_[id].yml'
+      - 'apps/issue-N/**'
+      - '.github/workflows/ci_N.yml'
   pull_request:
     paths:
-      - 'apps/issue-[id]/**'
-      - '.github/workflows/ci_[id].yml'
+      - 'apps/issue-N/**'
+      - '.github/workflows/ci_N.yml'
 
 jobs:
   build-and-test:
@@ -100,17 +100,17 @@ jobs:
         # ... 根據專案類型設置環境
       
       - name: Install dependencies
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: |
           # ... 安裝依賴指令
       
       - name: Run tests
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: |
           # ... 執行測試指令
       
       - name: Build
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: |
           # ... 建置指令
 ```
@@ -119,8 +119,8 @@ jobs:
 
 工作流程應該限定只在以下情況觸發：
 
-1. 專案目錄內的檔案有變更：`apps/issue-[id]/**`
-2. 工作流程本身被修改：`.github/workflows/ci_[id].yml`
+1. 專案目錄內的檔案有變更：`apps/issue-N/**`（N 是 Issue 編號）
+2. 工作流程本身被修改：`.github/workflows/ci_N.yml`
 
 這樣可以確保：
 - 不同專案的 CI 不會互相干擾
@@ -151,7 +151,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Build
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: |
           # ... 建置指令
       
@@ -161,7 +161,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/issue-[id]/dist
+          path: apps/issue-N/dist
       
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
@@ -190,17 +190,17 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Build
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: |
           # ... 建置指令
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: issue-[id]-build
+          name: issue-N-build
           path: |
-            apps/issue-[id]/dist/
-            apps/issue-[id]/build/
+            apps/issue-N/dist/
+            apps/issue-N/build/
           retention-days: 90
 ```
 
@@ -339,8 +339,8 @@ npx skills update
    - 安裝找到的相關技能
 
 2. **開發階段**
-   - 在 `apps/issue-[id]/` 目錄下建立專案
-   - 建立專案專屬的 CI/CD 工作流程 `.github/workflows/ci_[id].yml`
+   - 在 `apps/issue-N/` 目錄下建立專案（N 是 Issue 編號）
+   - 建立專案專屬的 CI/CD 工作流程 `.github/workflows/ci_N.yml`
    - 撰寫程式碼和測試
    - 記錄開發過程中的經驗和最佳實踐
 

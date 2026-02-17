@@ -2,23 +2,23 @@
 
 # This is an example CI workflow file demonstrating the pattern described in AGENTS.md
 # For actual implementations:
-# 1. Copy this file to ci_[id].yml where [id] is your issue number
-# 2. Update all instances of [id] with your actual issue number
+# 1. Copy this file to ci_N.yml where N is your issue number
+# 2. Replace all instances of N with your actual issue number
 # 3. Customize the steps based on your project's needs
 
-name: CI for Issue [id]
+name: CI for Issue N
 
 on:
   push:
     paths:
       # Trigger only when files in this specific app directory change
-      - 'apps/issue-[id]/**'
+      - 'apps/issue-N/**'
       # Also trigger if the workflow itself changes
-      - '.github/workflows/ci_[id].yml'
+      - '.github/workflows/ci_N.yml'
   pull_request:
     paths:
-      - 'apps/issue-[id]/**'
-      - '.github/workflows/ci_[id].yml'
+      - 'apps/issue-N/**'
+      - '.github/workflows/ci_N.yml'
 
 jobs:
   build-and-test:
@@ -36,17 +36,17 @@ jobs:
       
       # Example: Install dependencies
       - name: Install dependencies
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: npm install
       
       # Example: Run tests
       - name: Run tests
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: npm test
       
       # Example: Build
       - name: Build
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: npm run build
 
   # Example: Deploy to GitHub Pages (for frontend apps only)
@@ -71,11 +71,11 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: npm install
       
       - name: Build
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: npm run build
       
       - name: Setup Pages
@@ -84,7 +84,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/issue-[id]/dist
+          path: apps/issue-N/dist
       
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
@@ -105,18 +105,18 @@ jobs:
           node-version: '20'
       
       - name: Install dependencies
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: npm install
       
       - name: Build
-        working-directory: apps/issue-[id]
+        working-directory: apps/issue-N
         run: npm run build
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: issue-[id]-build
+          name: issue-N-build
           path: |
-            apps/issue-[id]/dist/
-            apps/issue-[id]/build/
+            apps/issue-N/dist/
+            apps/issue-N/build/
           retention-days: 90
