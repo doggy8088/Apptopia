@@ -9,6 +9,7 @@
 - [部署策略](#部署策略)
 - [技能管理](#技能管理)
 - [開發流程](#開發流程)
+- [PowerShell 中正確傳遞多行文字給 CLI（`--body`）的指引](#powershell-cli-multiline-body)
 
 ## 專案結構規範
 
@@ -425,6 +426,88 @@ npm run build
 - 原始 Issue: #1
 - CI/CD Workflow: `.github/workflows/ci_1.yml`
 ```
+
+<a id="powershell-cli-multiline-body"></a>
+## PowerShell 中正確傳遞多行文字給 CLI（`--body`）的指引
+
+### 適用情境
+
+- 在 PowerShell（含 `pwsh`）中執行 CLI 指令
+- CLI 參數（如 `--body`、`--message`、`--description`）需要多行文字
+- 指令透過 `-Command "..."` 傳遞
+
+---
+
+### 第一性原則
+
+#### 核心事實
+
+- PowerShell 的換行 escape 字元不是 `\n`，而是反引號加 n：`` `n ``
+- CLI（例如 `gh`）不會解析 `\n` 或 `\r\n`
+- CLI 只接收「Shell 已經解析完成的字串」
+
+#### 必要條件
+
+- 換行必須在 PowerShell 字串解析階段就轉成實際的 LF（Line Feed）
+- 否則 CLI 會收到字面字串 `\n`
+
+---
+
+### 強制規範（必須遵守）
+
+#### 1. 禁止事項
+
+- 禁止在 PowerShell 中使用 `\n` 表示換行
+- 禁止假設 CLI 會自動轉換 `\n`
+
+#### 2. 正確寫法（唯一允許）
+
+在 PowerShell 的雙引號字串中，一律使用 `` `n `` 表示換行
+
+##### 範例
+
+```powershell
+gh pr create `
+  --title "feat: example" `
+  --body "## Summary`n- first item`n- second item`n`n## Validation`n- run tests"
+```
+
+上述指令在 GitHub PR 中會正確顯示為多行 Markdown。
+
+---
+
+### 與 `-Command` 搭配時的範例
+
+```powershell
+pwsh -Command "gh pr create --title `"feat: example`" --body `"## Summary`n- item A`n- item B`"`"
+```
+
+#### 說明
+
+- `` `n `` 會在 PowerShell 解析階段轉為實際換行
+- `gh` 接收到的已是包含 LF 的字串
+- GitHub Markdown 會正確渲染段落與清單
+
+---
+
+### 常見錯誤與後果
+
+| 寫法 | 結果 |
+|---|---|
+| `--body "Line1\nLine2"` | PR 內容顯示為 `Line1\nLine2` |
+| ``--body "Line1`nLine2"`` | PR 內容正確換行 |
+| 假設 CLI 會處理 `\n` | 必然失敗 |
+
+---
+
+### 設計理由（不可省略）
+
+- PowerShell 的 escape 設計與 Unix shell 不同
+- `\n` 在 PowerShell 不是標準換行 escape
+- 明確使用 `` `n `` 可避免：
+  - Shell 差異
+  - CI 環境行為不一致
+  - CLI 版本誤判
 
 ## 常見問題
 
