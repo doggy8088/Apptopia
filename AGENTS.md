@@ -9,6 +9,7 @@
 - [部署策略](#部署策略)
 - [技能管理](#技能管理)
 - [開發流程](#開發流程)
+- [技術選型與品質標準](#技術選型與品質標準)
 - [PowerShell 中正確傳遞多行文字給 CLI（`--body`）的指引](#powershell-cli-multiline-body)
 
 ## 專案結構規範
@@ -426,6 +427,29 @@ npm run build
 - 原始 Issue: #1
 - CI/CD Workflow: `.github/workflows/ci_1.yml`
 ```
+
+## 技術選型與品質標準
+
+### CLI 開發語言優先順序
+
+- 開發 CLI 時，優先使用 Node.js + TypeScript。
+- 若 Node.js + TypeScript 無法滿足需求，次選 .NET 10。
+- 僅在上述方案均不可行時，才使用 Python。
+
+### 前端技術選型
+
+- 設計前端網頁時，盡量不採用前端 JavaScript 框架。
+- 如需 CSS 框架，優先採用 Tailwind CSS v4。
+
+### 可測試性與覆蓋率
+
+- 開發任何程式時，必須在設計階段納入可測試性。
+- 測試覆蓋率目標為盡可能接近 100%，並持續追蹤與補強未覆蓋區域。
+
+### 開發計畫驗證標準
+
+- 所有開發計畫都必須定義可驗證的驗收標準（例如：可執行測試、可重現的檢查步驟、明確的輸入/輸出預期）。
+- 在實作與交付時，應依據驗收標準逐項驗證並記錄結果。
 
 <a id="powershell-cli-multiline-body"></a>
 ## PowerShell 中正確傳遞多行文字給 CLI（`--body`）的指引
