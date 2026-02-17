@@ -1,0 +1,288 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:host {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  text-align: center;
+  color: white;
+  padding: 30px 0;
+}
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.search-section {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.find-button {
+  background: white;
+  color: #667eea;
+  border: none;
+  border-radius: 50px;
+  padding: 20px 40px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.find-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+}
+
+.find-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.find-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(102, 126, 234, 0.3);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-card {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  animation: slideIn 0.3s ease;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.error-card p {
+  color: #e53e3e;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.result-card {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.result-header h2 {
+  font-size: 1.8rem;
+  color: #2d3748;
+  margin: 0;
+}
+
+.direction-badge {
+  background: #667eea;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.highway-info {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.highway-badge {
+  background: #f7fafc;
+  color: #2d3748;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.mileage {
+  background: #f7fafc;
+  color: #718096;
+  padding: 8px 15px;
+  border-radius: 8px;
+}
+
+.distance-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.distance-item {
+  background: #f7fafc;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.distance-item .label {
+  display: block;
+  color: #718096;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.distance-item .value {
+  display: block;
+  color: #2d3748;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.parking-info {
+  background: #f7fafc;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.parking-status {
+  display: inline-block;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.parking-details {
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+.navigate-button {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.navigate-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+}
+
+footer {
+  text-align: center;
+  color: white;
+  padding: 30px 0;
+  opacity: 0.9;
+}
+
+footer p {
+  margin: 5px 0;
+  color: white;
+}
+
+.disclaimer {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .find-button {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+  }
+
+  .result-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .distance-info {
+    grid-template-columns: 1fr;
+  }
+}

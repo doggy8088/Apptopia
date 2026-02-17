@@ -1,0 +1,18 @@
+# Backend (Go)
+backend/rest-area-api
+backend/rest-area-api-*
+backend/*.exe
+
+# Frontend (Angular)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.vscode/
+
+# Common
+*.log
+.DS_Store
+.env
+*.swp
+*.swo
+*~

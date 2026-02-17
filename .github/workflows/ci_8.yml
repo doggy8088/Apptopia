@@ -1,0 +1,145 @@
+name: CI for Issue 8
+
+on:
+  push:
+    paths:
+      - "apps/issue-8/**"
+      - ".github/workflows/ci_8.yml"
+  pull_request:
+    paths:
+      - "apps/issue-8/**"
+      - ".github/workflows/ci_8.yml"
+
+jobs:
+  backend-test:
+    name: Backend Build and Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - name: Install dependencies
+        working-directory: apps/issue-8/backend
+        run: go mod download
+
+      - name: Build backend
+        working-directory: apps/issue-8/backend
+        run: go build -v -o rest-area-api main.go
+
+      - name: Run backend tests
+        working-directory: apps/issue-8/backend
+        run: go test -v ./...
+
+  frontend-test:
+    name: Frontend Build and Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: apps/issue-8/frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/issue-8/frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: apps/issue-8/frontend
+        run: npm run build
+
+      - name: Run frontend tests
+        working-directory: apps/issue-8/frontend
+        run: npm test
+
+  deploy-frontend:
+    name: Deploy Frontend to GitHub Pages
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: apps/issue-8/frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/issue-8/frontend
+        run: npm ci
+
+      - name: Build frontend for production
+        working-directory: apps/issue-8/frontend
+        run: npm run build -- --configuration production --base-href /Apptopia/issue-8/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/issue-8/frontend/dist/frontend/browser
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  package-backend:
+    name: Package Backend Artifacts
+    needs: backend-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - name: Build backend for multiple platforms
+        working-directory: apps/issue-8/backend
+        run: |
+          # Linux
+          GOOS=linux GOARCH=amd64 go build -o rest-area-api-linux-amd64 main.go
+          # macOS
+          GOOS=darwin GOARCH=amd64 go build -o rest-area-api-darwin-amd64 main.go
+          GOOS=darwin GOARCH=arm64 go build -o rest-area-api-darwin-arm64 main.go
+          # Windows
+          GOOS=windows GOARCH=amd64 go build -o rest-area-api-windows-amd64.exe main.go
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-8-backend
+          path: |
+            apps/issue-8/backend/rest-area-api-*
+          retention-days: 90

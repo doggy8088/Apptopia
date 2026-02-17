@@ -1,0 +1,77 @@
+<div class="container">
+  <header>
+    <h1>🚻 {{ title() }}</h1>
+    <p class="subtitle">高速公路休息站快速搜尋</p>
+  </header>
+
+  <main>
+    <div class="search-section">
+      <button 
+        class="find-button" 
+        (click)="onFindRestArea()"
+        [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span>
+          定位中...
+        } @else {
+          📍 我要尿尿
+        }
+      </button>
+    </div>
+
+    @if (error()) {
+      <div class="error-card">
+        <div class="error-icon">⚠️</div>
+        <p>{{ error() }}</p>
+      </div>
+    }
+
+    @if (serviceArea()) {
+      <div class="result-card">
+        <div class="result-header">
+          <h2>{{ serviceArea()!.name }}</h2>
+          <span class="direction-badge">{{ serviceArea()!.direction }}</span>
+        </div>
+        
+        <div class="highway-info">
+          <span class="highway-badge">{{ serviceArea()!.highway }}</span>
+          <span class="mileage">{{ serviceArea()!.mileage }}K</span>
+        </div>
+
+        <div class="distance-info">
+          <div class="distance-item">
+            <span class="label">距離</span>
+            <span class="value">{{ serviceArea()!.distance?.toFixed(1) }} 公里</span>
+          </div>
+          <div class="distance-item">
+            <span class="label">預估時間</span>
+            <span class="value">{{ serviceArea()!.eta }}</span>
+          </div>
+        </div>
+
+        @if (serviceArea()!.parkingInfo) {
+          <div class="parking-info">
+            <div class="parking-status" 
+                 [style.background-color]="serviceArea()!.parkingInfo!.colorCode">
+              {{ serviceArea()!.parkingInfo!.status }}
+            </div>
+            <div class="parking-details">
+              <span>剩餘車位：{{ serviceArea()!.parkingInfo!.availableSpaces }} / {{ serviceArea()!.parkingInfo!.totalSpaces }}</span>
+            </div>
+          </div>
+        }
+
+        <button class="navigate-button" (click)="openGoogleMaps(serviceArea()!)">
+          🗺️ 開啟 Google 地圖導航
+        </button>
+      </div>
+    }
+  </main>
+
+  <footer>
+    <p>資料來源：交通部 TDX 平台</p>
+    <p class="disclaimer">⚠️ 請注意安全駕駛，勿邊開車邊使用手機</p>
+  </footer>
+</div>
+
+<router-outlet />
