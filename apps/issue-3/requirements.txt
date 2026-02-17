@@ -1,0 +1,21 @@
+# AI知識++ Backend Dependencies
+# Python 3.10+
+
+# Core dependencies
+markdown>=3.5.0          # Markdown parsing
+pyyaml>=6.0.1           # YAML frontmatter parsing
+python-frontmatter>=1.0.1  # Frontmatter extraction
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Code quality
+black>=23.0.0
+pylint>=3.0.0
+
+# Future dependencies (commented out for minimal start)
+# chromadb>=0.4.0        # Vector database
+# sentence-transformers>=2.2.0  # Embeddings
+# paddleocr>=2.7.0       # OCR
+# pillow>=10.0.0         # Image processing
