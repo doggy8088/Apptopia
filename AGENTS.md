@@ -389,28 +389,28 @@ npx skills update
 
 ## 安裝
 
-\`\`\`bash
+```bash
 cd apps/issue-[id]
 npm install  # 或其他套件管理器
-\`\`\`
+```
 
 ## 使用
 
-\`\`\`bash
+```bash
 npm start    # 或其他執行指令
-\`\`\`
+```
 
 ## 測試
 
-\`\`\`bash
+```bash
 npm test
-\`\`\`
+```
 
 ## 建置
 
-\`\`\`bash
+```bash
 npm run build
-\`\`\`
+```
 
 ## 部署
 
