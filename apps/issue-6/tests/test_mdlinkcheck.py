@@ -82,6 +82,29 @@ This is another `[inline code](https://ignored.com)`.
         assert scanner._classify_link("./docs/file.md") == "relative"
         assert scanner._classify_link("../README.md") == "relative"
         assert scanner._classify_link("#heading") == "anchor"
+    
+    def test_line_numbers_with_code_blocks(self):
+        """Test that line numbers are accurate even with code blocks."""
+        scanner = MarkdownScanner(".")
+        content = """Line 1
+Line 2: [Link1](https://example1.com)
+Line 3
+Line 4: ```
+Line 5: code
+Line 6: more code
+Line 7: ```
+Line 8
+Line 9: [Link2](https://example2.com)
+Line 10"""
+        
+        links = scanner._extract_links(content)
+        
+        # Should find 2 links with correct line numbers
+        assert len(links) == 2
+        assert links[0].line_number == 2
+        assert links[0].url == "https://example1.com"
+        assert links[1].line_number == 9
+        assert links[1].url == "https://example2.com"
 
 
 class TestLinkChecker:
