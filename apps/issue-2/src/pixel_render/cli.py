@@ -9,9 +9,10 @@ from pathlib import Path
 from PIL import Image
 
 
-ColorCell = str | None
+RGBAColor = tuple[int, int, int, int]
+ColorCell = RGBAColor | None
 Frame = list[list[ColorCell]]
-NEAREST = Image.Resampling.NEAREST if hasattr(Image, "Resampling") else Image.NEAREST
+NEAREST = Image.Resampling.NEAREST
 
 
 class PixelRenderError(ValueError):
@@ -110,13 +111,13 @@ def _load_animation(path: Path, fps_override: int | None) -> PixelAnimation:
                     )
 
                 try:
-                    parse_hex_color(raw_color)
+                    parsed_color = parse_hex_color(raw_color)
                 except PixelRenderError as exc:
                     raise PixelRenderError(
                         f"Frame {frame_index}, row {row_index}, col {col_index}: {exc}"
                     ) from exc
 
-                row.append(raw_color)
+                row.append(parsed_color)
 
             frame_rows.append(row)
         frames.append(frame_rows)
@@ -132,7 +133,7 @@ def _render_frame(frame: Frame, width: int, height: int, scale: int) -> Image.Im
         for x, color in enumerate(row):
             if color is None:
                 continue
-            pixels[x, y] = parse_hex_color(color)
+            pixels[x, y] = color
 
     if scale != 1:
         image = image.resize((width * scale, height * scale), NEAREST)
@@ -141,7 +142,7 @@ def _render_frame(frame: Frame, width: int, height: int, scale: int) -> Image.Im
 
 def _save_gif(images: list[Image.Image], output_path: Path, fps: int) -> None:
     duration_ms = max(1, round(1000 / fps))
-    first, *rest = [image.convert("RGBA") for image in images]
+    first, *rest = images
     first.save(
         output_path,
         format="GIF",
@@ -217,7 +218,7 @@ def _build_parser(prog_name: str) -> argparse.ArgumentParser:
 
 
 def _parse_args(argv: list[str] | None) -> argparse.Namespace:
-    args = list(sys.argv[1:] if argv is None else argv)
+    args = sys.argv[1:] if argv is None else argv
     if args and args[0] == "generate":
         parser = _build_parser("pixel-render generate")
         return parser.parse_args(args[1:])
