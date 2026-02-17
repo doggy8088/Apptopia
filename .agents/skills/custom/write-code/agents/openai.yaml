@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Code"
+  short_description: "Plan, implement, and verify reliable code changes"
+  default_prompt: "Use $write-code to implement a minimal, verified code change."
