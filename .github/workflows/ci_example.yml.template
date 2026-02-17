@@ -1,0 +1,122 @@
+# Example CI Workflow
+
+# This is an example CI workflow file demonstrating the pattern described in AGENTS.md
+# For actual implementations:
+# 1. Copy this file to ci_N.yml where N is your issue number
+# 2. Replace all instances of N with your actual issue number
+# 3. Customize the steps based on your project's needs
+
+name: CI for Issue N
+
+on:
+  push:
+    paths:
+      # Trigger only when files in this specific app directory change
+      - 'apps/issue-N/**'
+      # Also trigger if the workflow itself changes
+      - '.github/workflows/ci_N.yml'
+  pull_request:
+    paths:
+      - 'apps/issue-N/**'
+      - '.github/workflows/ci_N.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Example: Setup Node.js (adjust based on your project)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      # Example: Install dependencies
+      - name: Install dependencies
+        working-directory: apps/issue-N
+        run: npm install
+      
+      # Example: Run tests
+      - name: Run tests
+        working-directory: apps/issue-N
+        run: npm test
+      
+      # Example: Build
+      - name: Build
+        working-directory: apps/issue-N
+        run: npm run build
+
+  # Example: Deploy to GitHub Pages (for frontend apps only)
+  deploy-pages:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    # Required permissions for GitHub Pages deployment
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        working-directory: apps/issue-N
+        run: npm install
+      
+      - name: Build
+        working-directory: apps/issue-N
+        run: npm run build
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/issue-N/dist
+      
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+
+  # Example: Package artifacts (for backend/CLI apps)
+  package-artifacts:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        working-directory: apps/issue-N
+        run: npm install
+      
+      - name: Build
+        working-directory: apps/issue-N
+        run: npm run build
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-N-build
+          path: |
+            apps/issue-N/dist/
+            apps/issue-N/build/
+          retention-days: 90
