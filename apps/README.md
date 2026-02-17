@@ -22,5 +22,6 @@ Please refer to [AGENTS.md](../AGENTS.md) for complete development guidelines.
 ## Current Apps
 
 - `example/` - Example directory structure (not a real app)
+- `issue-2/` - AI Pixel Renderer CLI (JSON color matrix to GIF/PNG)
 
 Add your app here following the naming convention `issue-N/` where N is your issue number.
