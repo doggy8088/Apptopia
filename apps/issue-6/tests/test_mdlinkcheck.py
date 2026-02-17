@@ -82,6 +82,26 @@ This is another `[inline code](https://ignored.com)`.
         assert scanner._classify_link("./docs/file.md") == "relative"
         assert scanner._classify_link("../README.md") == "relative"
         assert scanner._classify_link("#heading") == "anchor"
+    
+    def test_extract_links_with_parentheses_in_url(self):
+        """Test that URLs containing parentheses are extracted correctly."""
+        scanner = MarkdownScanner(".")
+        content = """
+# Test
+
+[Wikipedia](https://en.wikipedia.org/wiki/Entropy_(information_theory))
+[Another](https://example.com/page_(version_2))
+[Nested](https://example.com/func_(a_(b)))
+[Multiple links](url1) and [another](url2) on same line
+"""
+        links = scanner._extract_links(content)
+        
+        assert len(links) == 5
+        assert links[0].url == "https://en.wikipedia.org/wiki/Entropy_(information_theory)"
+        assert links[1].url == "https://example.com/page_(version_2)"
+        assert links[2].url == "https://example.com/func_(a_(b))"
+        assert links[3].url == "url1"
+        assert links[4].url == "url2"
 
 
 class TestLinkChecker:
