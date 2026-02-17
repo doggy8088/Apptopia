@@ -1,0 +1,210 @@
+name: 遊戲類應用程式提案
+description: 提出遊戲原型、互動遊戲等需求
+title: "[遊戲] "
+labels: ["proposal", "game"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感謝您提出遊戲類應用程式的提案！請詳細填寫以下資訊，讓需求更清楚、更容易被實作。
+
+  - type: input
+    id: game-name
+    attributes:
+      label: 遊戲名稱
+      description: 給這個遊戲取一個簡單的名稱
+      placeholder: 例如：記憶配對遊戲
+    validations:
+      required: true
+
+  - type: dropdown
+    id: game-type
+    attributes:
+      label: 遊戲類型
+      description: 這是什麼類型的遊戲？
+      options:
+        - 益智遊戲
+        - 動作遊戲
+        - 策略遊戲
+        - 文字冒險
+        - 卡牌遊戲
+        - 休閒小遊戲
+        - 其他（請在下方說明）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: game-platform
+    attributes:
+      label: 遊戲平台
+      description: 遊戲要在哪個平台上執行？
+      options:
+        - Web 瀏覽器
+        - 命令列（CLI）
+        - 桌面應用程式
+        - 其他（請在下方說明）
+    validations:
+      required: true
+
+  - type: textarea
+    id: target-players
+    attributes:
+      label: 目標玩家
+      description: 誰會玩這個遊戲？適合什麼年齡層？
+      placeholder: |
+        例如：適合所有年齡層的休閒玩家
+        例如：喜歡益智挑戰的玩家
+    validations:
+      required: true
+
+  - type: textarea
+    id: game-concept
+    attributes:
+      label: 遊戲概念
+      description: 簡單描述遊戲的核心玩法和目標
+      placeholder: |
+        例如：玩家需要在限時內翻牌配對所有相同圖案的卡片
+        例如：玩家扮演探險家，在迷宮中尋找寶藏並避開陷阱
+    validations:
+      required: true
+
+  - type: textarea
+    id: gameplay
+    attributes:
+      label: 遊戲玩法
+      description: 詳細說明遊戲的進行方式和規則
+      placeholder: |
+        1. 遊戲開始時顯示 N 對翻面的卡片
+        2. 玩家每次可以翻開兩張卡片
+        3. 如果兩張卡片圖案相同，卡片保持翻開；如果不同，再次翻面
+        4. 玩家需在限時內配對所有卡片
+        5. 遊戲結束後顯示分數和排名
+    validations:
+      required: true
+
+  - type: textarea
+    id: game-rules
+    attributes:
+      label: 遊戲規則
+      description: 勝利條件、失敗條件、計分方式等
+      value: |
+        **勝利條件：**
+        - 
+
+        **失敗條件：**
+        - 
+
+        **計分方式：**
+        - 
+
+        **其他規則：**
+        - 
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-interactions
+    attributes:
+      label: 使用者互動
+      description: 玩家如何與遊戲互動？（鍵盤、滑鼠、觸控等）
+      placeholder: |
+        - 滑鼠點擊卡片進行翻牌
+        - 鍵盤方向鍵控制角色移動
+        - 空白鍵進行跳躍
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: 功能需求
+      description: 列出必須（Must）、應該（Should）、可以（Could）的功能
+      value: |
+        **Must（必須有，否則不算完成）：**
+        - 
+
+        **Should（最好有，但可延後）：**
+        - 
+
+        **Could（加分項）：**
+        - 
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: 驗收標準
+      description: 可驗證的驗收條件（至少 3 條），建議用 Given/When/Then 格式
+      placeholder: |
+        - [ ] 給定：遊戲開始，當：玩家翻開兩張相同卡片，則：卡片保持翻開且計入分數
+        - [ ] 給定：遊戲進行中，當：時間到達 0 秒，則：遊戲結束並顯示最終分數
+        - [ ] 給定：玩家完成遊戲，當：點擊重新開始，則：遊戲重置並重新開始
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: 遊戲範例與參考
+      description: 提供類似遊戲的連結或範例，或預期的畫面描述
+      placeholder: |
+        **參考遊戲：**
+        - 類似 2048、記憶翻牌、俄羅斯方塊等
+
+        **預期畫面：**
+        - 開始畫面：標題、開始按鈕、難度選擇
+        - 遊戲畫面：卡片網格、計時器、分數顯示
+        - 結束畫面：最終分數、排行榜、重新開始按鈕
+    validations:
+      required: false
+
+  - type: textarea
+    id: visual-audio
+    attributes:
+      label: 視覺與音效
+      description: 對視覺風格、色彩、音效等的期望（選填）
+      placeholder: |
+        - 視覺風格：簡約、卡通、像素風、寫實等
+        - 色彩：明亮、柔和、暗色調等
+        - 音效：需要/不需要背景音樂、音效
+    validations:
+      required: false
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 限制與偏好
+      description: 技術限制或偏好（選填）
+      value: |
+        **平台：**
+        - [ ] Web（HTML5/Canvas）
+        - [ ] 桌面（Electron）
+        - [ ] 命令列（文字界面）
+
+        **語言/框架偏好：**（不保證採用）
+        - 
+
+        **環境需求：**
+        - 
+
+        **其他限制：**
+        - [ ] 需要離線運作
+        - [ ] 需要儲存進度
+        - [ ] 多人模式
+        - [ ] 其他：
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 確認事項
+      description: 請確認您已閱讀並同意以下事項
+      options:
+        - label: 我已閱讀 README 中的需求撰寫規格和行為準則
+          required: true
+        - label: 我確認此需求不涉及非法、惡意、侵權或危害隱私的內容
+          required: true
+        - label: 我理解這是提案，不保證一定會被實作
+          required: true

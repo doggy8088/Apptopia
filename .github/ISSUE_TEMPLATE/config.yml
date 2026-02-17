@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 專案說明與參與方式
+    url: https://github.com/doggy8088/Apptopia/blob/main/README.md
+    about: 閱讀完整的專案說明、需求撰寫規格和行為準則
+  - name: ❓ 提問或討論
+    url: https://github.com/doggy8088/Apptopia/discussions
+    about: 對專案有疑問或想討論？歡迎到 Discussions 區

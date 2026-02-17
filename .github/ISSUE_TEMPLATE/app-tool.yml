@@ -1,0 +1,177 @@
+name: 工具類應用程式提案
+description: 提出 CLI 工具、Web 工具、API 服務等應用程式需求
+title: "[工具] "
+labels: ["proposal", "tool"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感謝您提出工具類應用程式的提案！請詳細填寫以下資訊，讓需求更清楚、更容易被實作。
+
+  - type: input
+    id: tool-name
+    attributes:
+      label: 工具名稱
+      description: 給這個工具取一個簡單的名稱
+      placeholder: 例如：檔案批次重新命名工具
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tool-type
+    attributes:
+      label: 工具類型
+      description: 這是什麼類型的工具？
+      options:
+        - CLI 命令列工具
+        - Web 應用程式
+        - API 服務
+        - 桌面應用程式
+        - 瀏覽器擴充功能
+        - 資料處理腳本
+        - 其他（請在下方說明）
+    validations:
+      required: true
+
+  - type: textarea
+    id: target-users
+    attributes:
+      label: 目標使用者
+      description: 誰會使用這個工具？在什麼情境下使用？
+      placeholder: |
+        例如：開發者在整理專案檔案時使用
+        例如：內容創作者需要快速產生社群媒體貼文
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 要解決的問題
+      description: 目前遇到什麼痛點？為什麼需要這個工具？
+      placeholder: |
+        例如：手動重新命名大量檔案很耗時且容易出錯
+        例如：現有工具缺乏某個關鍵功能
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-flow
+    attributes:
+      label: 使用流程
+      description: 列出主要的使用流程（至少 1-3 條）
+      placeholder: |
+        1. 使用者選擇目標資料夾
+        2. 設定重新命名規則（前綴、後綴、序號等）
+        3. 預覽變更結果
+        4. 確認後執行批次重新命名
+    validations:
+      required: true
+
+  - type: textarea
+    id: input-output
+    attributes:
+      label: 輸入與輸出
+      description: 詳細說明工具的輸入和輸出
+      value: |
+        **輸入：**
+        - 格式：
+        - 限制：
+        - 範例：
+
+        **輸出：**
+        - 格式：
+        - 範例：
+        - 錯誤訊息範例：
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: 功能需求
+      description: 列出必須（Must）、應該（Should）、可以（Could）的功能
+      value: |
+        **Must（必須有，否則不算完成）：**
+        - 
+
+        **Should（最好有，但可延後）：**
+        - 
+
+        **Could（加分項）：**
+        - 
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: 驗收標準
+      description: 可驗證的驗收條件（至少 3 條），建議用 Given/When/Then 格式
+      placeholder: |
+        - [ ] 給定：有 100 個檔案的資料夾，當：執行批次重新命名，則：所有檔案正確重新命名且無遺漏
+        - [ ] 給定：使用者輸入無效規則，當：嘗試執行，則：顯示清楚的錯誤訊息並不執行任何變更
+        - [ ] 給定：有同名衝突，當：執行重新命名，則：自動處理衝突（例如：加序號）或提示使用者
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: 範例與測試資料
+      description: 提供具體的操作範例、測試資料和預期結果
+      placeholder: |
+        **操作範例：**
+        ```bash
+        tool-name --prefix "project_" --input ./files
+        ```
+
+        **測試資料：**
+        - 檔案列表：file1.txt, file2.txt, file3.txt
+
+        **預期結果：**
+        成功：project_file1.txt, project_file2.txt, project_file3.txt
+        失敗：若 project_file1.txt 已存在，顯示錯誤訊息
+    validations:
+      required: false
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 限制與偏好
+      description: 平台、語言、環境等偏好或限制（選填）
+      value: |
+        **平台：**
+        - [ ] Windows
+        - [ ] macOS
+        - [ ] Linux
+        - [ ] Web（跨平台）
+
+        **語言/框架偏好：**（不保證採用）
+        - 
+
+        **環境需求：**
+        - Node.js 版本：
+        - Python 版本：
+        - 其他：
+
+        **其他限制：**
+        - [ ] 需要離線運作
+        - [ ] 需要儲存資料（持久化）
+        - [ ] 需要帳號登入
+        - [ ] 其他：
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 確認事項
+      description: 請確認您已閱讀並同意以下事項
+      options:
+        - label: 我已閱讀 README 中的需求撰寫規格和行為準則
+          required: true
+        - label: 我確認此需求不涉及非法、惡意、侵權或危害隱私的內容
+          required: true
+        - label: 我理解這是提案，不保證一定會被實作
+          required: true
