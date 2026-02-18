@@ -188,10 +188,19 @@ class QueryProcessor:
         documents = search_results['documents'][0] if search_results.get('documents') else []
         
         for i, chunk_id in enumerate(ids):
-            # Convert distance to similarity score (cosine distance: 0=identical, 2=opposite)
-            # Score: 1 - (distance/2) maps [0,2] to [1,0]
+            # Convert distance to similarity score
+            # ChromaDB returns cosine distance where smaller is better
+            # For cosine similarity: similarity = 1 - distance
+            # But ChromaDB might return different ranges, so we normalize
             distance = distances[i] if i < len(distances) else 1.0
-            score = max(0.0, 1.0 - (distance / 2.0))
+            
+            # If distance is very large (>2), it's likely unnormalized - normalize it
+            if distance > 2.0:
+                # Assume it's a squared distance or unnormalized, clamp to reasonable range
+                score = max(0.0, min(1.0, 1.0 / (1.0 + distance / 100.0)))
+            else:
+                # Normal cosine distance range [0, 2]
+                score = max(0.0, min(1.0, 1.0 - (distance / 2.0)))
             
             # Filter by minimum score
             if score < self.min_score:
