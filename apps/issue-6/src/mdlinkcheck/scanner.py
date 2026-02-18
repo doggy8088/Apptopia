@@ -151,7 +151,7 @@ class MarkdownScanner:
         content = re.sub(r'~~~[\s\S]*?~~~', replace_with_newlines, content)
         
         # Remove inline code (same line only, no line number impact)
-        content = re.sub(r'`[^`\n]+`', '', content)
+        content = re.sub(r'`[^`\n]*?`', '', content)
         
         # Remove indented code blocks (4 spaces or 1 tab at start of line)
         lines = content.split("\n")
