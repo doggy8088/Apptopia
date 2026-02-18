@@ -244,7 +244,7 @@ Follow these steps.
         
         for url in test_links:
             link = Link(url=url, line_number=1, link_type="internal")
-            result = checker._check_internal_link(link, tmp_path)
+            result = checker._check_internal_link(link)
             
             # All internal links should be marked as ok (skipped)
             assert result.status == "ok"

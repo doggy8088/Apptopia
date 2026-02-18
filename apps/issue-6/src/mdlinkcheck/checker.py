@@ -78,7 +78,7 @@ class LinkChecker:
 
             # Check internal site paths
             for link in internal_links:
-                file_results.append(self._check_internal_link(link, base_path))
+                file_results.append(self._check_internal_link(link))
             
             results[file_path] = FileResult(file_path=file_path, results=file_results)
         
@@ -194,7 +194,7 @@ class LinkChecker:
                 suggestion=suggestion,
             )
 
-    def _check_internal_link(self, link: Link, base_path: Path) -> LinkResult:
+    def _check_internal_link(self, link: Link) -> LinkResult:
         """Skip checking internal site paths (like /posts/xxx)."""
         # Internal paths like /posts/xxx are website routes that depend on
         # the framework's routing mechanism (dynamic routes, rewrites, etc.)
