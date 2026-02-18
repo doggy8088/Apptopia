@@ -4,6 +4,8 @@ import pytest
 from pathlib import Path
 import tempfile
 import shutil
+from unittest.mock import patch, MagicMock
+import urllib.error
 
 from mdlinkcheck.scanner import MarkdownScanner, Link
 from mdlinkcheck.checker import LinkChecker
@@ -228,6 +230,95 @@ Follow these steps.
         suggestion = checker._find_similar_anchor("xyz", valid_anchors)
         assert suggestion == ""
 
+    @patch('urllib.request.urlopen')
+    def test_http_link_head_403_cloudflare_no_fallback(self, mock_urlopen):
+        """Test that HEAD 403 with Cloudflare Challenge does NOT fall back to GET."""
+        checker = LinkChecker()
+        link = Link(url="http://example.com", line_number=1, link_type="http")
+        
+        # Mock: HEAD returns 403 with Cloudflare Challenge headers
+        error = urllib.error.HTTPError(
+            "http://example.com", 
+            403, 
+            "Forbidden", 
+            {'cf-mitigated': 'challenge', 'Server': 'cloudflare'}, 
+            None
+        )
+        mock_urlopen.side_effect = error
+        
+        result = checker._check_http_link(link)
+        
+        assert result.status == "warning"
+        assert result.status_code == 403
+        assert result.message == "cloudflare challenge"
+        assert mock_urlopen.call_count == 1  # Only HEAD, no GET fallback
+
+    @patch('urllib.request.urlopen')
+    def test_http_link_head_403_fallback_to_get(self, mock_urlopen):
+        """Test that HEAD 403 falls back to GET request."""
+        checker = LinkChecker()
+        link = Link(url="http://example.com", line_number=1, link_type="http")
+        
+        # Mock: HEAD returns 403, GET returns 200
+        def side_effect(request, timeout):
+            if request.method == "HEAD":
+                raise urllib.error.HTTPError(request.full_url, 403, "Forbidden", {}, None)
+            else:  # GET request
+                mock_response = MagicMock()
+                mock_response.status = 200
+                mock_response.__enter__ = MagicMock(return_value=mock_response)
+                mock_response.__exit__ = MagicMock(return_value=False)
+                return mock_response
+        
+        mock_urlopen.side_effect = side_effect
+        
+        result = checker._check_http_link(link)
+        
+        assert result.status == "ok"
+        assert result.status_code == 200
+        assert mock_urlopen.call_count == 2  # HEAD + GET
+
+    @patch('urllib.request.urlopen')
+    def test_http_link_head_405_fallback_to_get(self, mock_urlopen):
+        """Test that HEAD 405 falls back to GET request."""
+        checker = LinkChecker()
+        link = Link(url="http://example.com", line_number=1, link_type="http")
+        
+        # Mock: HEAD returns 405, GET returns 200
+        def side_effect(request, timeout):
+            if request.method == "HEAD":
+                raise urllib.error.HTTPError(request.full_url, 405, "Method Not Allowed", {}, None)
+            else:  # GET request
+                mock_response = MagicMock()
+                mock_response.status = 200
+                mock_response.__enter__ = MagicMock(return_value=mock_response)
+                mock_response.__exit__ = MagicMock(return_value=False)
+                return mock_response
+        
+        mock_urlopen.side_effect = side_effect
+        
+        result = checker._check_http_link(link)
+        
+        assert result.status == "ok"
+        assert result.status_code == 200
+        assert mock_urlopen.call_count == 2  # HEAD + GET
+
+    @patch('urllib.request.urlopen')
+    def test_http_link_head_404_no_fallback(self, mock_urlopen):
+        """Test that HEAD 404 does NOT fall back to GET (truly broken)."""
+        checker = LinkChecker()
+        link = Link(url="http://example.com", line_number=1, link_type="http")
+        
+        # Mock: HEAD returns 404
+        mock_urlopen.side_effect = urllib.error.HTTPError(
+            "http://example.com", 404, "Not Found", {}, None
+        )
+        
+        result = checker._check_http_link(link)
+        
+        assert result.status == "broken"
+        assert result.status_code == 404
+        assert mock_urlopen.call_count == 1  # Only HEAD, no fallback
 
 class TestConfig:
     """Tests for Config."""

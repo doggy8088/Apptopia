@@ -104,8 +104,24 @@ class LinkChecker:
                 message="excluded by config",
             )
         
+        # Try HEAD request first
+        head_result = self._try_request(link, "HEAD")
+        
+        # If HEAD succeeded or returned warning (e.g., cloudflare challenge, timeout), return that result
+        if head_result.status in ("ok", "warning"):
+            return head_result
+        
+        # If HEAD failed with 403 or 405, retry with GET
+        if head_result.status_code in (403, 405):
+            return self._try_request(link, "GET")
+        
+        # For other errors, return the HEAD result
+        return head_result
+    
+    def _try_request(self, link: Link, method: str) -> LinkResult:
+        """Try a single HTTP request (HEAD or GET)."""
         try:
-            req = urllib.request.Request(link.url, method="HEAD")
+            req = urllib.request.Request(link.url, method=method)
             req.add_header("User-Agent", "mdlinkcheck/1.0")
             
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
@@ -116,6 +132,15 @@ class LinkChecker:
                 )
         
         except urllib.error.HTTPError as e:
+            # Check for Cloudflare Challenge on 403 errors
+            if e.code == 403 and self._is_cloudflare_challenge(e):
+                return LinkResult(
+                    link=link,
+                    status="warning",
+                    status_code=403,
+                    message="cloudflare challenge",
+                )
+
             return LinkResult(
                 link=link,
                 status="broken",
@@ -143,6 +168,14 @@ class LinkChecker:
                 status="warning",
                 message=str(e),
             )
+
+    def _is_cloudflare_challenge(self, error: urllib.error.HTTPError) -> bool:
+        """Check if HTTPError indicates a Cloudflare Challenge."""
+        if not hasattr(error, 'headers'):
+            return False
+        cf_mitigation = error.headers.get('cf-mitigated', '').lower()
+        server = error.headers.get('Server', '').lower()
+        return 'challenge' in cf_mitigation or 'cloudflare' in server
     
     def _check_relative_link(self, link: Link, current_file: str, base_path: Path) -> LinkResult:
         """Check a relative path link."""
