@@ -3,6 +3,8 @@
 import urllib.request
 import urllib.error
 import socket
+import ipaddress
+from urllib.parse import urlparse
 from pathlib import Path
 from typing import Dict, List
 from dataclasses import dataclass
@@ -120,6 +122,14 @@ class LinkChecker:
     
     def _try_request(self, link: Link, method: str) -> LinkResult:
         """Try a single HTTP request (HEAD or GET)."""
+        # SSRF protection: Check if URL points to private/internal IP
+        if self._is_private_ip(link.url):
+            return LinkResult(
+                link=link,
+                status="warning",
+                message="private IP address skipped (security protection)",
+            )
+        
         try:
             req = urllib.request.Request(link.url, method=method)
             req.add_header("User-Agent", "mdlinkcheck/1.0")
@@ -174,6 +184,54 @@ class LinkChecker:
         cf_mitigation = error.headers.get('cf-mitigated', '').lower()
         server = error.headers.get('Server', '').lower()
         return 'challenge' in cf_mitigation or 'cloudflare' in server
+    
+    def _is_private_ip(self, url: str) -> bool:
+        """Check if URL points to a private/internal IP address (SSRF protection)."""
+        try:
+            parsed = urlparse(url)
+            hostname = parsed.hostname
+            
+            if not hostname:
+                return False
+            
+            # Check for localhost variants
+            if hostname.lower() in ('localhost', 'localhost.localdomain'):
+                return True
+            
+            # Try to parse as IP address
+            try:
+                ip = ipaddress.ip_address(hostname)
+                
+                # Check if private, loopback, link-local, or reserved
+                return (
+                    ip.is_private or
+                    ip.is_loopback or
+                    ip.is_link_local or
+                    ip.is_reserved
+                )
+            except ValueError:
+                # Not a valid IP address, try to resolve hostname
+                try:
+                    # Resolve hostname to IP and check
+                    resolved_ips = socket.getaddrinfo(hostname, None)
+                    for addr_info in resolved_ips:
+                        ip_str = addr_info[4][0]
+                        try:
+                            ip = ipaddress.ip_address(ip_str)
+                            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved:
+                                return True
+                        except ValueError:
+                            continue
+                except (socket.gaierror, socket.herror):
+                    # DNS resolution failed, allow the request to proceed
+                    # (it will fail naturally if the hostname is invalid)
+                    pass
+            
+            return False
+        
+        except Exception:
+            # If we can't parse or check, allow the request (fail open)
+            return False
     
     def _check_relative_link(self, link: Link, current_file: str, base_path: Path) -> LinkResult:
         """Check a relative path link."""
