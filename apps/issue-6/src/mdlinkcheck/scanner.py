@@ -145,7 +145,8 @@ class MarkdownScanner:
                     links.append(Link(url=url, line_number=line_num, link_type=link_type))
                     i = url_end + 1
                 else:
-                    i = url_start
+                    # Skip past the [text]( pattern and continue searching
+                    i = i + match.end()
             
             # Find reference-style links [text][ref] and [ref]: url
             for match in re.finditer(r'^\[([^\]]+)\]:\s*(.+)$', line):
