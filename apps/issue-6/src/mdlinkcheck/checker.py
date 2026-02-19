@@ -62,6 +62,7 @@ class LinkChecker:
             http_links = [link for link in md_file.links if link.link_type == "http"]
             relative_links = [link for link in md_file.links if link.link_type == "relative"]
             anchor_links = [link for link in md_file.links if link.link_type == "anchor"]
+            internal_links = [link for link in md_file.links if link.link_type == "internal"]
             
             # Check HTTP links concurrently
             if http_links:
@@ -74,6 +75,10 @@ class LinkChecker:
             # Check anchor links
             for link in anchor_links:
                 file_results.append(self._check_anchor_link(link, md_file.content))
+
+            # Check internal site paths
+            for link in internal_links:
+                file_results.append(self._check_internal_link(link))
             
             results[file_path] = FileResult(file_path=file_path, results=file_results)
         
@@ -188,7 +193,18 @@ class LinkChecker:
                 message="anchor not found",
                 suggestion=suggestion,
             )
-    
+
+    def _check_internal_link(self, link: Link) -> LinkResult:
+        """Skip checking internal site paths (like /posts/xxx)."""
+        # Internal paths like /posts/xxx are website routes that depend on
+        # the framework's routing mechanism (dynamic routes, rewrites, etc.)
+        # We cannot reliably verify these by checking file existence,
+        # so we skip them by default.
+        return LinkResult(
+            link=link,
+            status="ok",
+        )
+
     def _extract_headings(self, content: str) -> List[str]:
         """Extract all headings from Markdown content."""
         headings = []

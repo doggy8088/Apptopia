@@ -85,6 +85,7 @@ This is another `[inline code](https://ignored.com)`.
         assert scanner._classify_link("./docs/file.md") == "relative"
         assert scanner._classify_link("../README.md") == "relative"
         assert scanner._classify_link("#heading") == "anchor"
+        assert scanner._classify_link("/posts/article") == "internal"
     
     def test_line_numbers_with_code_blocks(self):
         """Test that line numbers are accurate even with code blocks."""
@@ -317,6 +318,26 @@ Follow these steps.
         assert result.message == "timeout"
         assert result.status_code == 0
 
+    def test_check_internal_link_skipped(self, tmp_path):
+        """Test that internal site paths are always skipped."""
+        # Internal links like /posts/xxx depend on framework routing
+        # and cannot be reliably verified by file existence checks
+        
+        checker = LinkChecker()
+        
+        # Test various internal link patterns
+        test_links = [
+            "/posts/article-name",      # Blog post style
+            "/api/users",                # API endpoint style
+            "/docs/guide/setup",         # Nested path
+        ]
+        
+        for url in test_links:
+            link = Link(url=url, line_number=1, link_type="internal")
+            result = checker._check_internal_link(link)
+            
+            # All internal links should be marked as ok (skipped)
+            assert result.status == "ok"
 
 class TestConfig:
     """Tests for Config."""
