@@ -169,5 +169,7 @@ class MarkdownScanner:
             return "anchor"
         elif url.startswith("http://") or url.startswith("https://"):
             return "http"
+        elif url.startswith("/"):
+            return "internal"
         else:
             return "relative"
