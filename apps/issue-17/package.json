@@ -1,0 +1,27 @@
+{
+  "name": "k8s-upgrade-validator",
+  "version": "0.1.0",
+  "description": "CLI tool to validate Kubernetes upgrade compatibility",
+  "private": true,
+  "type": "commonjs",
+  "bin": {
+    "k8s-upgrade-validator": "dist/cli.js"
+  },
+  "scripts": {
+    "start": "npm run build --silent && node dist/cli.js",
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "ajv": "^8.17.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

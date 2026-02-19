@@ -23,5 +23,6 @@ Please refer to [AGENTS.md](../AGENTS.md) for complete development guidelines.
 
 - `example/` - Example directory structure (not a real app)
 - `issue-2/` - AI Pixel Renderer CLI (JSON color matrix to GIF/PNG)
+- `issue-17/` - Kubernetes 升級驗證器（K8s Upgrade Validator）
 
 Add your app here following the naming convention `issue-N/` where N is your issue number.

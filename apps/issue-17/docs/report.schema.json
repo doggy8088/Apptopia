@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://doggy8088.github.io/apptopia/issue-17/report.schema.json",
+  "title": "K8s Upgrade Validation Report",
+  "type": "object",
+  "required": [
+    "tool",
+    "currentVersion",
+    "targetVersion",
+    "generatedAt",
+    "summary",
+    "findings",
+    "upgradeSteps"
+  ],
+  "properties": {
+    "tool": {
+      "type": "object",
+      "required": ["name", "version", "mode"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "mode": { "type": "string", "enum": ["manifest", "cluster"] }
+      }
+    },
+    "currentVersion": { "type": "string" },
+    "targetVersion": { "type": "string" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "summary": {
+      "type": "object",
+      "required": ["totalResources", "breaking", "warning", "compatible", "overall"],
+      "properties": {
+        "totalResources": { "type": "integer", "minimum": 0 },
+        "breaking": { "type": "integer", "minimum": 0 },
+        "warning": { "type": "integer", "minimum": 0 },
+        "compatible": { "type": "integer", "minimum": 0 },
+        "overall": { "type": "string", "enum": ["compatible", "action-required"] }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "resource", "rule", "message"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["breaking", "warning"] },
+          "resource": {
+            "type": "object",
+            "required": ["apiVersion", "kind", "name", "source"],
+            "properties": {
+              "apiVersion": { "type": "string" },
+              "kind": { "type": "string" },
+              "name": { "type": "string" },
+              "namespace": { "type": "string" },
+              "source": { "type": "string" }
+            }
+          },
+          "rule": {
+            "type": "object",
+            "required": ["id", "kind", "apiVersion", "reason"],
+            "properties": {
+              "id": { "type": "string" },
+              "kind": { "type": "string" },
+              "apiVersion": { "type": "string" },
+              "replacementApiVersion": { "type": "string" },
+              "deprecatedIn": { "type": "string" },
+              "removedIn": { "type": "string" },
+              "changedIn": { "type": "string" },
+              "reason": { "type": "string" },
+              "migration": { "type": "string" }
+            }
+          },
+          "message": { "type": "string" }
+        }
+      }
+    },
+    "upgradeSteps": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}
