@@ -4,6 +4,9 @@ import pytest
 from pathlib import Path
 import tempfile
 import shutil
+from unittest.mock import patch
+import urllib.error
+import socket
 
 from mdlinkcheck.scanner import MarkdownScanner, Link
 from mdlinkcheck.checker import LinkChecker
@@ -227,6 +230,21 @@ Follow these steps.
         # No close match
         suggestion = checker._find_similar_anchor("xyz", valid_anchors)
         assert suggestion == ""
+    
+    @patch('urllib.request.urlopen')
+    def test_http_link_timeout(self, mock_urlopen):
+        """Test that HTTP link timeout is properly handled as warning."""
+        checker = LinkChecker()
+        link = Link(url="http://example.com", line_number=1, link_type="http")
+        
+        # Mock: Simulate timeout wrapped in URLError (never makes real request)
+        mock_urlopen.side_effect = urllib.error.URLError(socket.timeout())
+        
+        result = checker._check_http_link(link)
+        
+        assert result.status == "warning"
+        assert result.message == "timeout"
+        assert result.status_code == 0
 
 
 class TestConfig:

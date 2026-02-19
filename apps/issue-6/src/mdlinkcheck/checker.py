@@ -123,14 +123,14 @@ class LinkChecker:
                 message=f"{e.code}",
             )
         
-        except socket.timeout:
-            return LinkResult(
-                link=link,
-                status="warning",
-                message="timeout",
-            )
-        
         except urllib.error.URLError as e:
+            # Check if the error is due to timeout
+            if isinstance(e.reason, socket.timeout):
+                return LinkResult(
+                    link=link,
+                    status="warning",
+                    message="timeout",
+                )
             return LinkResult(
                 link=link,
                 status="broken",
