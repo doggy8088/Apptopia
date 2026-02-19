@@ -78,7 +78,7 @@ class Reporter:
         print(f"  Links checked:  {total_links}")
         print(f"  ✅ Healthy:     {total_ok}")
         print(f"  ❌ Broken:      {total_broken}")
-        print(f"  ⚠️  Warning:     {total_warning}")
+        print(f"  ⚠️ Warning:     {total_warning}")
         print()
     
     def _report_json(self, results: Dict[str, FileResult], source_name: str):
