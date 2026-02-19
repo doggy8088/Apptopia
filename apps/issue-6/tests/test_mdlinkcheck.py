@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 import tempfile
 import shutil
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import urllib.error
 import socket
 
@@ -338,6 +338,232 @@ Follow these steps.
             
             # All internal links should be marked as ok (skipped)
             assert result.status == "ok"
+
+    @patch('urllib.request.urlopen')
+    def test_http_link_head_403_cloudflare_no_fallback(self, mock_urlopen):
+        """Test that HEAD 403 with Cloudflare Challenge does NOT fall back to GET."""
+        checker = LinkChecker()
+        link = Link(url="http://example.com", line_number=1, link_type="http")
+        
+        # Mock: HEAD returns 403 with Cloudflare Challenge headers
+        error = urllib.error.HTTPError(
+            "http://example.com", 
+            403, 
+            "Forbidden", 
+            {'cf-mitigated': 'challenge', 'Server': 'cloudflare'}, 
+            None
+        )
+        mock_urlopen.side_effect = error
+        
+        result = checker._check_http_link(link)
+        
+        assert result.status == "warning"
+        assert result.status_code == 403
+        assert result.message == "cloudflare challenge"
+        assert mock_urlopen.call_count == 1  # Only HEAD, no GET fallback
+
+    @patch('urllib.request.urlopen')
+    def test_http_link_head_403_fallback_to_get(self, mock_urlopen):
+        """Test that HEAD 403 falls back to GET request."""
+        checker = LinkChecker()
+        link = Link(url="http://example.com", line_number=1, link_type="http")
+        
+        # Mock: HEAD returns 403, GET returns 200
+        def side_effect(request, timeout):
+            if request.method == "HEAD":
+                raise urllib.error.HTTPError(request.full_url, 403, "Forbidden", {}, None)
+            else:  # GET request
+                mock_response = MagicMock()
+                mock_response.status = 200
+                mock_response.__enter__ = MagicMock(return_value=mock_response)
+                mock_response.__exit__ = MagicMock(return_value=False)
+                return mock_response
+        
+        mock_urlopen.side_effect = side_effect
+        
+        result = checker._check_http_link(link)
+        
+        assert result.status == "ok"
+        assert result.status_code == 200
+        assert mock_urlopen.call_count == 2  # HEAD + GET
+
+    @patch('urllib.request.urlopen')
+    def test_http_link_head_405_fallback_to_get(self, mock_urlopen):
+        """Test that HEAD 405 falls back to GET request."""
+        checker = LinkChecker()
+        link = Link(url="http://example.com", line_number=1, link_type="http")
+        
+        # Mock: HEAD returns 405, GET returns 200
+        def side_effect(request, timeout):
+            if request.method == "HEAD":
+                raise urllib.error.HTTPError(request.full_url, 405, "Method Not Allowed", {}, None)
+            else:  # GET request
+                mock_response = MagicMock()
+                mock_response.status = 200
+                mock_response.__enter__ = MagicMock(return_value=mock_response)
+                mock_response.__exit__ = MagicMock(return_value=False)
+                return mock_response
+        
+        mock_urlopen.side_effect = side_effect
+        
+        result = checker._check_http_link(link)
+        
+        assert result.status == "ok"
+        assert result.status_code == 200
+        assert mock_urlopen.call_count == 2  # HEAD + GET
+
+    @patch('urllib.request.urlopen')
+    def test_http_link_head_404_no_fallback(self, mock_urlopen):
+        """Test that HEAD 404 does NOT fall back to GET (truly broken)."""
+        checker = LinkChecker()
+        link = Link(url="http://example.com", line_number=1, link_type="http")
+        
+        # Mock: HEAD returns 404
+        mock_urlopen.side_effect = urllib.error.HTTPError(
+            "http://example.com", 404, "Not Found", {}, None
+        )
+        
+        result = checker._check_http_link(link)
+        
+        assert result.status == "broken"
+        assert result.status_code == 404
+        assert mock_urlopen.call_count == 1  # Only HEAD, no fallback
+
+    def test_ssrf_protection_localhost(self):
+        """Test SSRF protection blocks localhost variants."""
+        checker = LinkChecker()
+        
+        test_cases = [
+            "http://localhost:8080",
+            "http://localhost/admin",
+            "http://LOCALHOST:3000",  # Case insensitive
+            "http://localhost.localdomain/api",
+        ]
+        
+        for url in test_cases:
+            assert checker._is_private_ip(url) is True, f"Failed to block: {url}"
+    
+    def test_ssrf_protection_loopback_ipv4(self):
+        """Test SSRF protection blocks loopback IPv4 addresses."""
+        checker = LinkChecker()
+        
+        test_cases = [
+            "http://127.0.0.1",
+            "http://127.0.0.1:8080",
+            "http://127.1.1.1",
+            "http://127.255.255.255",
+        ]
+        
+        for url in test_cases:
+            assert checker._is_private_ip(url) is True, f"Failed to block: {url}"
+    
+    def test_ssrf_protection_private_ipv4(self):
+        """Test SSRF protection blocks private IPv4 ranges."""
+        checker = LinkChecker()
+        
+        test_cases = [
+            "http://192.168.1.1",
+            "http://192.168.0.1:3000",
+            "http://10.0.0.1",
+            "http://10.255.255.255",
+            "http://172.16.0.1",
+            "http://172.31.255.255",
+        ]
+        
+        for url in test_cases:
+            assert checker._is_private_ip(url) is True, f"Failed to block: {url}"
+    
+    def test_ssrf_protection_link_local(self):
+        """Test SSRF protection blocks link-local addresses (AWS/Azure metadata)."""
+        checker = LinkChecker()
+        
+        test_cases = [
+            "http://169.254.169.254",  # AWS metadata service
+            "http://169.254.169.254/latest/meta-data",
+            "http://169.254.0.1",
+        ]
+        
+        for url in test_cases:
+            assert checker._is_private_ip(url) is True, f"Failed to block: {url}"
+    
+    def test_ssrf_protection_loopback_ipv6(self):
+        """Test SSRF protection blocks IPv6 loopback."""
+        checker = LinkChecker()
+        
+        test_cases = [
+            "http://[::1]",
+            "http://[::1]:8080",
+            "http://[0:0:0:0:0:0:0:1]",
+        ]
+        
+        for url in test_cases:
+            assert checker._is_private_ip(url) is True, f"Failed to block: {url}"
+    
+    def test_ssrf_protection_allows_public_urls(self):
+        """Test SSRF protection allows legitimate public URLs."""
+        checker = LinkChecker()
+        
+        test_cases = [
+            "https://github.com",
+            "https://example.com",
+            "http://8.8.8.8",  # Public IP
+            "https://www.google.com",
+            "http://1.1.1.1",  # Cloudflare DNS
+        ]
+        
+        for url in test_cases:
+            assert checker._is_private_ip(url) is False, f"Should allow: {url}"
+    
+    def test_ssrf_protection_invalid_urls(self):
+        """Test SSRF protection handles invalid URLs gracefully."""
+        checker = LinkChecker()
+        
+        # Invalid URLs should not cause crashes
+        test_cases = [
+            "not-a-url",
+            "http://",
+            "://missing-scheme",
+            "",
+        ]
+        
+        for url in test_cases:
+            # Should not raise exceptions
+            result = checker._is_private_ip(url)
+            assert isinstance(result, bool)
+    
+    @patch('urllib.request.urlopen')
+    def test_ssrf_protection_blocks_request(self, mock_urlopen):
+        """Test that private IPs are blocked before making HTTP requests."""
+        checker = LinkChecker()
+        link = Link(url="http://192.168.1.1", line_number=1, link_type="http")
+        
+        result = checker._check_http_link(link)
+        
+        # Should return warning without making HTTP request
+        assert result.status == "warning"
+        assert "private IP" in result.message
+        assert "security protection" in result.message
+        assert mock_urlopen.call_count == 0  # No HTTP request made
+    
+    @patch('urllib.request.urlopen')
+    def test_ssrf_protection_allows_public_request(self, mock_urlopen):
+        """Test that public URLs are allowed through to HTTP request."""
+        checker = LinkChecker()
+        link = Link(url="https://example.com", line_number=1, link_type="http")
+        
+        # Mock successful response
+        mock_response = MagicMock()
+        mock_response.status = 200
+        mock_response.__enter__ = MagicMock(return_value=mock_response)
+        mock_response.__exit__ = MagicMock(return_value=False)
+        mock_urlopen.return_value = mock_response
+        
+        result = checker._check_http_link(link)
+        
+        # Should make HTTP request and succeed
+        assert result.status == "ok"
+        assert result.status_code == 200
+        assert mock_urlopen.call_count == 1  # HTTP request made
 
 class TestConfig:
     """Tests for Config."""

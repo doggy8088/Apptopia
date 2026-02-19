@@ -14,6 +14,8 @@
 
 - ✅ 支援 GitHub Repository URL 和本地資料夾
 - ✅ 檢查 HTTP/HTTPS 外部連結
+  - 智慧處理伺服器限制（自動重試不同請求方法）
+  - 識別 Cloudflare Challenge（標記為 warning 而非 broken）
 - ✅ 驗證相對路徑檔案是否存在
 - ✅ 檢查錨點連結是否對應標題
 - ✅ 並行請求加速檢查
