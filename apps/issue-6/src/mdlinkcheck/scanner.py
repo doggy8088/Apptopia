@@ -27,6 +27,9 @@ class MarkdownFile:
 class MarkdownScanner:
     """Scans and extracts links from Markdown files."""
     
+    # Security: Maximum URL length to prevent DoS attacks
+    MAX_URL_LENGTH = 2048
+    
     def __init__(self, source: str):
         self.source = source
         self.base_path: Path = Path(".")
@@ -125,11 +128,25 @@ class MarkdownScanner:
         lines = content_without_code.split("\n")
         
         for line_num, line in enumerate(lines, start=1):
-            # Find Markdown links [text](url)
-            for match in re.finditer(r'\[([^\]]+)\]\(([^)]+)\)', line):
-                url = match.group(2)
-                link_type = self._classify_link(url)
-                links.append(Link(url=url, line_number=line_num, link_type=link_type))
+            # Find Markdown links [text](url) with proper parenthesis balancing
+            i = 0
+            while i < len(line):
+                # Look for [text](
+                match = re.search(r'\[([^\]]+)\]\(', line[i:])
+                if not match:
+                    break
+                
+                # Extract URL with balanced parentheses
+                url_start = i + match.end()
+                url, url_end = self._extract_url_with_balanced_parens(line, url_start)
+                
+                if url is not None:
+                    link_type = self._classify_link(url)
+                    links.append(Link(url=url, line_number=line_num, link_type=link_type))
+                    i = url_end + 1
+                else:
+                    # Skip past the [text]( pattern and continue searching
+                    i = i + match.end()
             
             # Find reference-style links [text][ref] and [ref]: url
             for match in re.finditer(r'^\[([^\]]+)\]:\s*(.+)$', line):
@@ -138,6 +155,44 @@ class MarkdownScanner:
                 links.append(Link(url=url, line_number=line_num, link_type=link_type))
         
         return links
+    
+    def _extract_url_with_balanced_parens(self, text: str, start: int) -> Tuple[str, int]:
+        """Extract URL from position, handling balanced parentheses.
+        
+        Returns:
+            Tuple of (url, end_position) or (None, -1) if not found
+        """
+        paren_count = 1  # We're inside the opening (
+        i = start
+        
+        # Security: Prevent DoS by limiting URL length
+        max_scan_position = min(start + self.MAX_URL_LENGTH, len(text))
+        
+        while i < max_scan_position and paren_count > 0:
+            char = text[i]
+            
+            if char == '(':
+                paren_count += 1
+            elif char == ')':
+                paren_count -= 1
+                if paren_count == 0:
+                    # Found the matching closing parenthesis
+                    url = text[start:i].strip()
+                    return url, i
+            elif char in (' ', '\t', '\n') and paren_count == 1:
+                # Whitespace at the top level ends the URL
+                url = text[start:i].strip()
+                # Skip to find the closing )
+                j = i
+                while j < len(text) and text[j] in (' ', '\t'):
+                    j += 1
+                if j < len(text) and text[j] == ')':
+                    return url, j
+                return None, -1
+            
+            i += 1
+        
+        return None, -1
     
     def _remove_code_blocks(self, content: str) -> str:
         """Remove code blocks from content while preserving line numbers."""
