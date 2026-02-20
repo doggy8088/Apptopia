@@ -3,6 +3,8 @@
 import urllib.request
 import urllib.error
 import socket
+import ipaddress
+from urllib.parse import urlparse
 from pathlib import Path
 from typing import Dict, List
 from dataclasses import dataclass
@@ -62,6 +64,7 @@ class LinkChecker:
             http_links = [link for link in md_file.links if link.link_type == "http"]
             relative_links = [link for link in md_file.links if link.link_type == "relative"]
             anchor_links = [link for link in md_file.links if link.link_type == "anchor"]
+            internal_links = [link for link in md_file.links if link.link_type == "internal"]
             
             # Check HTTP links concurrently
             if http_links:
@@ -74,6 +77,10 @@ class LinkChecker:
             # Check anchor links
             for link in anchor_links:
                 file_results.append(self._check_anchor_link(link, md_file.content))
+
+            # Check internal site paths
+            for link in internal_links:
+                file_results.append(self._check_internal_link(link))
             
             results[file_path] = FileResult(file_path=file_path, results=file_results)
         
@@ -104,8 +111,32 @@ class LinkChecker:
                 message="excluded by config",
             )
         
+        # Try HEAD request first
+        head_result = self._try_request(link, "HEAD")
+        
+        # If HEAD succeeded or returned warning (e.g., cloudflare challenge, timeout), return that result
+        if head_result.status in ("ok", "warning"):
+            return head_result
+        
+        # If HEAD failed with 403 or 405, retry with GET
+        if head_result.status_code in (403, 405):
+            return self._try_request(link, "GET")
+        
+        # For other errors, return the HEAD result
+        return head_result
+    
+    def _try_request(self, link: Link, method: str) -> LinkResult:
+        """Try a single HTTP request (HEAD or GET)."""
+        # SSRF protection: Check if URL points to private/internal IP
+        if self._is_private_ip(link.url):
+            return LinkResult(
+                link=link,
+                status="warning",
+                message="private IP address skipped (security protection)",
+            )
+        
         try:
-            req = urllib.request.Request(link.url, method="HEAD")
+            req = urllib.request.Request(link.url, method=method)
             req.add_header("User-Agent", "mdlinkcheck/1.0")
             
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
@@ -116,6 +147,15 @@ class LinkChecker:
                 )
         
         except urllib.error.HTTPError as e:
+            # Check for Cloudflare Challenge on 403 errors
+            if e.code == 403 and self._is_cloudflare_challenge(e):
+                return LinkResult(
+                    link=link,
+                    status="warning",
+                    status_code=403,
+                    message="cloudflare challenge",
+                )
+
             return LinkResult(
                 link=link,
                 status="broken",
@@ -143,6 +183,60 @@ class LinkChecker:
                 status="warning",
                 message=str(e),
             )
+
+    def _is_cloudflare_challenge(self, error: urllib.error.HTTPError) -> bool:
+        """Check if HTTPError indicates a Cloudflare Challenge."""
+        cf_mitigation = error.headers.get('cf-mitigated', '').lower()
+        server = error.headers.get('Server', '').lower()
+        return 'challenge' in cf_mitigation or 'cloudflare' in server
+    
+    def _is_private_ip(self, url: str) -> bool:
+        """Check if URL points to a private/internal IP address (SSRF protection)."""
+        try:
+            parsed = urlparse(url)
+            hostname = parsed.hostname
+            
+            if not hostname:
+                return False
+            
+            # Check for localhost variants
+            if hostname.lower() in ('localhost', 'localhost.localdomain'):
+                return True
+            
+            # Try to parse as IP address
+            try:
+                ip = ipaddress.ip_address(hostname)
+                
+                # Check if private, loopback, link-local, or reserved
+                return (
+                    ip.is_private or
+                    ip.is_loopback or
+                    ip.is_link_local or
+                    ip.is_reserved
+                )
+            except ValueError:
+                # Not a valid IP address, try to resolve hostname
+                try:
+                    # Resolve hostname to IP and check
+                    resolved_ips = socket.getaddrinfo(hostname, None)
+                    for addr_info in resolved_ips:
+                        ip_str = addr_info[4][0]
+                        try:
+                            ip = ipaddress.ip_address(ip_str)
+                            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved:
+                                return True
+                        except ValueError:
+                            continue
+                except (socket.gaierror, socket.herror):
+                    # DNS resolution failed, allow the request to proceed
+                    # (it will fail naturally if the hostname is invalid)
+                    pass
+            
+            return False
+        
+        except Exception:
+            # If we can't parse or check, allow the request (fail open)
+            return False
     
     def _check_relative_link(self, link: Link, current_file: str, base_path: Path) -> LinkResult:
         """Check a relative path link."""
@@ -188,7 +282,18 @@ class LinkChecker:
                 message="anchor not found",
                 suggestion=suggestion,
             )
-    
+
+    def _check_internal_link(self, link: Link) -> LinkResult:
+        """Skip checking internal site paths (like /posts/xxx)."""
+        # Internal paths like /posts/xxx are website routes that depend on
+        # the framework's routing mechanism (dynamic routes, rewrites, etc.)
+        # We cannot reliably verify these by checking file existence,
+        # so we skip them by default.
+        return LinkResult(
+            link=link,
+            status="ok",
+        )
+
     def _extract_headings(self, content: str) -> List[str]:
         """Extract all headings from Markdown content."""
         headings = []
