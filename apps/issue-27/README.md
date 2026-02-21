@@ -57,5 +57,5 @@ npm run build
 
 ## 相關連結
 
-- Issue: #27
+- Issue: https://github.com/doggy8088/Apptopia/issues/27
 - CI/CD Workflow: `.github/workflows/ci_27.yml`
