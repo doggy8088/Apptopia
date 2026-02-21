@@ -1,0 +1,96 @@
+name: Issue Planning with Codex CLI
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours (UTC)
+  workflow_dispatch:
+    inputs:
+      issue_limit:
+        description: "Max number of open issues to inspect"
+        required: false
+        default: "100"
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: codex-issue-planning
+  cancel-in-progress: false
+
+jobs:
+  plan-issues:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ISSUE_LIMIT: ${{ inputs.issue_limit || '100' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Codex CLI
+        run: npm install -g @openai/codex
+
+      - name: Validate required secrets
+        env:
+          AZURE_OPENAI_API_KEY_CODEX: ${{ secrets.AZURE_OPENAI_API_KEY_CODEX }}
+        run: |
+          if [ -z "$AZURE_OPENAI_API_KEY_CODEX" ]; then
+            echo "Missing required secret: AZURE_OPENAI_API_KEY_CODEX"
+            exit 1
+          fi
+
+      - name: Create Codex config for Azure
+        run: |
+          mkdir -p ~/.codex
+          cat <<EOT > ~/.codex/config.toml
+          approval_policy = "on-request"
+          sandbox_mode   = "workspace-write"
+
+          profile = "aoai"
+
+          [features]
+          multi_agent = true
+          steer = true
+
+          #####################
+          ### Azure Foundry ###
+          #####################
+
+          [model_providers.azure]
+          name         = "Azure OpenAI"
+          base_url     = "https://duotify-ai-foundry.cognitiveservices.azure.com/openai"
+          env_key      = "AZURE_OPENAI_API_KEY_CODEX"
+          wire_api     = "responses"
+          query_params = { api-version = "2025-04-01-preview" }
+
+          [profiles.aoai]
+          model_provider          = "azure"
+          model                   = "gpt-5.2-codex"
+          preferred_auth_method   = "apikey"
+          wire_api                = "responses"
+          model_reasoning_effort  = "high"
+          model_reasoning_summary = "detailed"
+          EOT
+
+      - name: Analyze open issues and comment with plan/questions
+        env:
+          AZURE_OPENAI_API_KEY_CODEX: ${{ secrets.AZURE_OPENAI_API_KEY_CODEX }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          GITHUB_ACTOR: ${{ github.actor }}
+        run: |
+          codex exec --dangerously-bypass-approvals-and-sandbox --color never "
+          你正在 GitHub Actions 中執行，請使用 gh CLI 處理 Issue。
+          請自動幫我取得目前 GitHub Repo 所有 Opened issues（最多 $ISSUE_LIMIT 筆），逐一查看每一條 Issue 的規格。
+          如果最新一條留言是我自己的留言（以 $GITHUB_ACTOR 判斷），就請跳過這條 Issue。
+          如果最後一條不是我自己的留言，就分析整份 Issue 的討論串。
+          若開發的需求不夠明確，請直接留言請樓主提供釐清的資訊。
+          請不要開始開發每一項需求。
+          如果需求已經足夠明確，請先制訂開發計畫，並留言在 Issue 之中。
+          請直接執行，不要輸出額外說明。"
