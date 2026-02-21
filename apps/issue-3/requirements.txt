@@ -1,0 +1,39 @@
+# AI知識++ Backend Dependencies
+# Python 3.10+
+
+# Core dependencies
+markdown>=3.5.0          # Markdown parsing
+pyyaml>=6.0.1           # YAML frontmatter parsing
+python-frontmatter>=1.0.1  # Frontmatter extraction
+
+# Vector database and embeddings
+chromadb>=0.4.22        # Vector database
+sentence-transformers>=2.2.2  # Embeddings
+tiktoken>=0.5.2         # Token counting
+
+# Utilities
+scikit-learn>=1.3.0     # Text processing utilities
+
+# Graph processing (Phase 3)
+networkx>=3.0           # Graph algorithms
+python-louvain>=0.16    # Community detection
+scipy>=1.11.0           # Scientific computing (for networkx algorithms)
+
+# CLI dependencies (Phase 5)
+click>=8.1.7            # CLI framework
+rich>=13.7.0            # Rich terminal output
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Code quality
+black>=23.0.0
+pylint>=3.0.0
+
+# OCR dependencies (optional - use mock if not installed)
+# paddleocr>=2.7.0       # OCR engine
+# paddlepaddle>=2.5.0    # PaddleOCR backend  
+# opencv-python>=4.8.0   # Image preprocessing
+# Pillow>=10.0.0         # Image handling
+

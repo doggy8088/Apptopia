@@ -1,0 +1,106 @@
+name: CI for Issue 3
+
+on:
+  push:
+    paths:
+      - "apps/issue-3/**"
+      - ".github/workflows/ci_3.yml"
+  pull_request:
+    paths:
+      - "apps/issue-3/**"
+      - ".github/workflows/ci_3.yml"
+
+jobs:
+  # Phase 0: Planning and validation
+  validate-structure:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify project structure
+        working-directory: apps/issue-3
+        run: |
+          echo "✅ Checking project structure..."
+
+          # Check required directories exist
+          for dir in src tests docs data; do
+            if [ -d "$dir" ]; then
+              echo "✅ Directory '$dir' exists"
+            else
+              echo "❌ Directory '$dir' is missing"
+              exit 1
+            fi
+          done
+
+          # Check README exists
+          if [ -f "README.md" ]; then
+            echo "✅ README.md exists"
+          else
+            echo "❌ README.md is missing"
+            exit 1
+          fi
+
+          echo "✅ All structure checks passed"
+
+      - name: Validate test data
+        working-directory: apps/issue-3
+        run: |
+          echo "📊 Checking test data..."
+
+          if [ -d "data/test-data" ]; then
+            echo "✅ Test data directory exists"
+
+            # Count markdown files
+            md_count=$(find data/test-data -type f -name "*.md" | wc -l)
+            echo "📝 Found $md_count Markdown files"
+
+            # Count image files
+            img_count=$(find data/test-data -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" \) | wc -l)
+            echo "🖼️ Found $img_count image files"
+
+            if [ $md_count -gt 0 ]; then
+              echo "✅ Test data is present"
+            else
+              echo "⚠️ No markdown files found in test data"
+            fi
+          else
+            echo "⚠️ Test data directory not found (expected during initial setup)"
+          fi
+
+      - name: Validate documentation
+        working-directory: apps/issue-3
+        run: |
+          echo "📚 Validating documentation..."
+
+          # Check if README contains required sections
+          required_sections=(
+            "專案簡介"
+            "V1 開發計畫"
+            "開發里程碑"
+            "驗收基準"
+            "功能需求清單"
+          )
+
+          for section in "${required_sections[@]}"; do
+            if grep -q "$section" README.md; then
+              echo "✅ Section '$section' found"
+            else
+              echo "⚠️ Section '$section' not found"
+            fi
+          done
+
+  # Future jobs will be added here as development progresses
+  #
+  # build-and-test:
+  #   needs: validate-structure
+  #   runs-on: ubuntu-latest
+  #   ...
+  #
+  # package:
+  #   needs: build-and-test
+  #   runs-on: windows-latest  # Desktop app for Windows
+  #   ...

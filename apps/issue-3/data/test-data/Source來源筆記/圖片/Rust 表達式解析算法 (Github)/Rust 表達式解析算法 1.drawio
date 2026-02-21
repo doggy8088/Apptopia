@@ -1,0 +1,215 @@
+<mxfile host="Electron" modified="2024-07-24T16:16:05.884Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.5.3 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="IYbr_f-sYGO-0H18sYQN" version="24.5.3" type="device">
+  <diagram name="第1頁" id="6HGgipGe-dZ9g0JBynr4">
+    <mxGraphModel dx="3489" dy="2071" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-1" value="Token&lt;br&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;記錄 + - * /的符號要求&lt;/span&gt;&lt;div style=&quot;font-size: 12px;&quot;&gt;並提供具體的數字算&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=0;fontSize=20;fontColor=#000000;labelBackgroundColor=none;align=center;" vertex="1" parent="1">
+          <mxGeometry x="50" y="70" width="150" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-2" value="&lt;div style=&quot;&quot;&gt;&lt;pre style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace;&quot;&gt;&lt;div style=&quot;font-size: 15px;&quot;&gt;&lt;pre style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace;&quot;&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;Tokenizer&lt;/font&gt;&lt;/pre&gt;&lt;pre style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace;&quot;&gt;引用&lt;span style=&quot;background-color: initial; font-family: Helvetica; white-space: normal;&quot;&gt;Token&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;background-color: initial; white-space: normal;&quot;&gt;並增加迭代器&lt;/span&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=0;fontSize=20;fontColor=#000000;labelBackgroundColor=none;align=center;" vertex="1" parent="1">
+          <mxGeometry x="260" y="70" width="150" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-7" value="&lt;div style=&quot;font-size: 20px;&quot;&gt;&lt;pre style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace; font-size: 20px;&quot;&gt;&lt;div style=&quot;font-size: 20px;&quot;&gt;&lt;pre style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace; font-size: 20px;&quot;&gt;Expr&lt;br&gt;&lt;span style=&quot;font-family: Helvetica; font-size: 12px; white-space: normal;&quot;&gt;計算機，&lt;/span&gt;&lt;div style=&quot;font-family: Helvetica; font-size: 12px; white-space: normal;&quot;&gt;所有運算都在這&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=0;fontSize=20;fontColor=#000000;labelBackgroundColor=none;align=center;" vertex="1" parent="1">
+          <mxGeometry x="470" y="70" width="140" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-9" value="&lt;font style=&quot;font-size: 30px;&quot;&gt;&lt;font style=&quot;font-size: 30px;&quot;&gt;範例:&lt;/font&gt;&lt;span style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace;&quot;&gt;&quot;92 + 5 + 5 * 27 - (92 - 12) / 4 + 26&quot;&lt;/span&gt;&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="260" width="780" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-11" target="h3m_bltClG4ZnCq7_6eW-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-10" value="&lt;font style=&quot;font-size: 30px;&quot;&gt;Main&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="370" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-13" target="h3m_bltClG4ZnCq7_6eW-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-21" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;傳送數據給&lt;span style=&quot;background-color: rgb(251, 251, 251); font-family: &amp;quot;Fira Code&amp;quot;, monospace;&quot;&gt;Tokenizer&lt;/span&gt;&lt;/font&gt;&lt;div style=&quot;font-size: 15px;&quot;&gt;&lt;font style=&quot;font-size: 15px;&quot; face=&quot;Fira Code, monospace&quot;&gt;&lt;span style=&quot;background-color: rgb(251, 251, 251);&quot;&gt;初始迭代器&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="h3m_bltClG4ZnCq7_6eW-20">
+          <mxGeometry x="-0.0553" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-13" target="h3m_bltClG4ZnCq7_6eW-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-13" value="&lt;font style=&quot;font-size: 30px;&quot;&gt;Expr&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="570" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-10" target="h3m_bltClG4ZnCq7_6eW-11">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="90" y="430" as="sourcePoint" />
+            <mxPoint x="90" y="525" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-11" value="接收數據，並初始化Expr" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="5" y="460" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-18" value="Token" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=0;fontSize=20;fontColor=#000000;labelBackgroundColor=none;align=center;" vertex="1" parent="1">
+          <mxGeometry x="660" y="573.75" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-19" value="&lt;div style=&quot;font-size: 20px;&quot;&gt;&lt;pre style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace; font-size: 20px;&quot;&gt;&lt;div style=&quot;font-size: 20px;&quot;&gt;&lt;pre style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace; font-size: 20px;&quot;&gt;Tokenizer&lt;/pre&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=0;fontSize=20;fontColor=#000000;labelBackgroundColor=none;align=center;" vertex="1" parent="1">
+          <mxGeometry x="360" y="567.5" width="190" height="62.5" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-23" target="h3m_bltClG4ZnCq7_6eW-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-23" value="開始計算" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="30" y="710" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-25" target="h3m_bltClG4ZnCq7_6eW-27">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="890" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-25" value="讀到 92 +&lt;div&gt;開啟遞迴&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="30" y="850" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-27" target="h3m_bltClG4ZnCq7_6eW-30">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="1090" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-27" value="&lt;div&gt;遞迴 1&lt;/div&gt;讀到 5 +&lt;div&gt;+ 優先度不夠&lt;/div&gt;&lt;div&gt;彈回 5&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="190" y="960" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-34" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-30" target="h3m_bltClG4ZnCq7_6eW-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-30" value="收到數據&lt;div&gt;執行 92 + 5&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="30" y="1060" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-38" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-33" target="h3m_bltClG4ZnCq7_6eW-37">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-33" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;從&lt;span style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace; background-color: initial;&quot;&gt;Tokenizer拿到&amp;nbsp;&lt;/span&gt;&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;&lt;span style=&quot;font-family: &amp;quot;Fira Code&amp;quot;, monospace; background-color: initial;&quot;&gt;Token實體執行運算&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1200" width="210" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-35" value="1" style="endArrow=open;html=1;endSize=12;startArrow=diamondThin;startSize=14;startFill=0;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=bottom;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-19" target="h3m_bltClG4ZnCq7_6eW-18">
+          <mxGeometry x="-1" y="3" relative="1" as="geometry">
+            <mxPoint x="350" y="810" as="sourcePoint" />
+            <mxPoint x="510" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-36" value="&lt;font style=&quot;font-size: 30px;&quot;&gt;引用&lt;/font&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="h3m_bltClG4ZnCq7_6eW-35">
+          <mxGeometry x="-0.1251" y="-2" relative="1" as="geometry">
+            <mxPoint x="2" y="-27" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-40" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-37" target="h3m_bltClG4ZnCq7_6eW-39">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-37" value="97&lt;div&gt;繼續讀取&lt;/div&gt;&lt;div&gt;97 +&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="72.5" y="1400" width="105" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-42" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-39" target="h3m_bltClG4ZnCq7_6eW-41">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-39" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;遞迴 1&lt;/font&gt;&lt;div style=&quot;font-size: 15px;&quot;&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;讀到&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 15px;&quot;&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;5 X&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 15px;&quot;&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;優先度 X &amp;gt; +&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 15px;&quot;&gt;&lt;font style=&quot;font-size: 15px;&quot;&gt;開新遞迴&lt;/font&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="220" y="1500" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-41" target="h3m_bltClG4ZnCq7_6eW-43">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="1784" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-41" value="遞迴 2&amp;nbsp;&lt;div&gt;讀到 27 -&lt;/div&gt;&lt;div&gt;優先不構彈回 27&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="480" y="1630" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-47" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-43" target="h3m_bltClG4ZnCq7_6eW-46">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-43" value="執行 5 X 27" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="250" y="1754" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-49" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-46" target="h3m_bltClG4ZnCq7_6eW-48">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="310" y="2100" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-46" value="135&amp;nbsp;&lt;div&gt;遞迴裡的迴圈繼續&lt;/div&gt;&lt;div&gt;讀到135 -&lt;/div&gt;&lt;div&gt;優先不夠彈回135&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="250" y="1894" width="120" height="96" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-51" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-48" target="h3m_bltClG4ZnCq7_6eW-50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-48" value="執行 97 + 135&lt;div&gt;232 迴圈繼續&lt;/div&gt;&lt;div&gt;讀到 232 -&lt;/div&gt;&lt;div&gt;開遞迴&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="65" y="2070" width="120" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-53" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-50" target="h3m_bltClG4ZnCq7_6eW-52">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-50" value="遞迴 1&lt;div&gt;讀到 ( 強制開遞迴&lt;/div&gt;&lt;div&gt;(這遞迴跟前面開程式碼地方不同)&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="220" y="2260" width="194" height="82" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-55" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-52" target="h3m_bltClG4ZnCq7_6eW-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-52" value="遞迴 2&lt;div&gt;讀到92 -&lt;/div&gt;&lt;div&gt;開遞迴&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="480" y="2400" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-57" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-54" target="h3m_bltClG4ZnCq7_6eW-56">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="2700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-54" value="遞迴 3&lt;div&gt;讀到 12 )&lt;/div&gt;&lt;div&gt;讀到 ) 優先不夠&lt;/div&gt;&lt;div&gt;彈回 12&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="2510" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-59" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-56" target="h3m_bltClG4ZnCq7_6eW-58">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-56" value="計算 92 -12&amp;nbsp;&lt;div&gt;迴圈第2圈&lt;/div&gt;&lt;div&gt;讀到 80 /&lt;/div&gt;&lt;div&gt;開遞迴&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="480" y="2670" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-61" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-58" target="h3m_bltClG4ZnCq7_6eW-60">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="2930" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-58" value="遞迴 3&lt;div&gt;讀到 4 +&lt;/div&gt;&lt;div&gt;彈回 4&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="2810" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-63" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-60" target="h3m_bltClG4ZnCq7_6eW-62">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-60" value="計算&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;80 / 4&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;迴圈第3圈&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;20 +&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;優先不夠彈回 20&amp;nbsp;&lt;/span&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="480" y="2893" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-65" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-62" target="h3m_bltClG4ZnCq7_6eW-64">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-62" value="計算完 ( 數據&lt;div&gt;結束遞迴&lt;/div&gt;&lt;div&gt;彈20回去&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="257" y="2893" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-67" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-64" target="h3m_bltClG4ZnCq7_6eW-66">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-64" value="計算 232 - 20&lt;div&gt;迴圈繼續&lt;/div&gt;&lt;div&gt;讀 212 +&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="65" y="2990" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-69" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="h3m_bltClG4ZnCq7_6eW-66" target="h3m_bltClG4ZnCq7_6eW-68">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-66" value="遞迴&amp;nbsp;&lt;div&gt;26 None&lt;/div&gt;&lt;div&gt;彈回 26&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="260" y="3100" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h3m_bltClG4ZnCq7_6eW-68" value="計算 212 +26&lt;div&gt;迴圈繼續&lt;/div&gt;&lt;div&gt;讀 238 None&lt;/div&gt;&lt;div&gt;結束&lt;/div&gt;" style="whiteSpace=wrap;html=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="57.5" y="3190" width="120" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
