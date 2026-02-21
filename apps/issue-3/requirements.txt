@@ -19,6 +19,10 @@ networkx>=3.0           # Graph algorithms
 python-louvain>=0.16    # Community detection
 scipy>=1.11.0           # Scientific computing (for networkx algorithms)
 
+# CLI dependencies (Phase 5)
+click>=8.1.7            # CLI framework
+rich>=13.7.0            # Rich terminal output
+
 # Testing
 pytest>=7.4.0
 pytest-cov>=4.1.0
