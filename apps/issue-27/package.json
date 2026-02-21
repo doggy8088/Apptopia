@@ -1,0 +1,24 @@
+{
+  "name": "telegram-video-downloader-bot",
+  "version": "0.1.0",
+  "description": "Telegram bot that downloads videos via yt-dlp with queueing and limits",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "tsx src/bot.ts",
+    "start": "npm run build --silent && node dist/bot.js",
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/node-telegram-bot-api": "^0.64.13",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

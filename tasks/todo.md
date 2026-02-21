@@ -1,32 +1,31 @@
-# Issue 17 V1 Bootstrap Todo
+# Issue 27 Telegram Bot Todo
 
-## Scope (Initial implementation)
-- Build a TypeScript CLI scaffold for `k8s-upgrade-validator`.
-- Support version validation for Kubernetes minor versions 1.25+
-- Implement offline scanning from local manifests (`--from-manifests`) for V1 bootstrap.
-- Analyze resources against API deprecation/removal rules.
-- Output reports in `text`, `json`, and `html`.
-- Return non-zero exit code when breaking/warning findings exist; `0` when fully compatible.
-- Add CI workflow `.github/workflows/ci_17.yml`.
+## Scope (V1 implementation)
+- Build a Telegram bot (Node.js + TypeScript) that accepts a video URL and downloads via `yt-dlp`.
+- Enforce a 60-minute duration limit (metadata first; download+probe fallback).
+- Enforce Telegram bot file size limit; reject oversized files.
+- Process downloads sequentially via a single-worker queue.
+- Persist conversation logs, download logs, queue state, and user settings under `data/`.
+- Provide README and CI workflow for Issue #27.
 
 ## Acceptance criteria (verifiable)
-- [x] Given a manifest using `policy/v1beta1` PDB and versions `1.28 -> 1.31`, report marks it as breaking and suggests `policy/v1`.
-- [x] Given only compatible manifests, CLI exits with code `0` and text report states compatibility.
-- [x] `--output json` writes schema-compliant report object.
-- [x] Invalid target version returns a clear error and supported version range.
+- [x] When given a valid URL <= 1000 bytes, the bot queues the request and processes in order.
+- [x] Videos longer than 60 minutes are rejected with a clear error message.
+- [x] Downloads exceeding Telegram's file size limit are rejected with a clear error message.
+- [x] Queue state and logs are written to `apps/issue-27/data/`.
+- [x] `npm test` and `npm run build` succeed in `apps/issue-27`.
 
 ## Verification tasks
-- [x] `cd apps/issue-17 && npm test`
-- [x] `cd apps/issue-17 && npm run build`
-- [x] `cd apps/issue-17 && npm run check`
+- [x] `cd apps/issue-27 && npm test`
+- [x] `cd apps/issue-27 && npm run build`
 
 ## Risk level
-- Medium: Kubernetes live-cluster scanning via kubeconfig is not fully implemented in this bootstrap slice.
+- Medium: relies on external tools (`yt-dlp`, optional `ffprobe`) and Telegram API constraints.
 
 ## Rollback notes
-- Revert only files under `apps/issue-17/`, `.github/workflows/ci_17.yml`, and `tasks/todo.md`.
+- Revert only files under `apps/issue-27/`, `.github/workflows/ci_27.yml`, and `tasks/todo.md`.
 
 ## Working notes
-- Prefer minimal in-repo deprecation rule dataset first, then expand.
-- Keep analyzer pure and deterministic for fast unit tests.
-- Keep report schema explicit to support CI integrations.
+- Use `yt-dlp --dump-single-json` to read metadata; fallback to probing downloaded files if needed.
+- Store logs as JSONL and queue/user settings as JSON for simplicity.
+- Ensure clear, user-facing error messages for invalid input and limits.
