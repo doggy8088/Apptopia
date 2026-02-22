@@ -20,7 +20,7 @@
 
 ## Assumptions
 - `yt-dlp` is installed and available on PATH (or `YT_DLP_PATH`).
-- Telegram Bot API file size limit is 50 MB (check official docs as needed).
+- Telegram Bot API file size limit remains 50 MB per available Bot API references.
 
 ## Risks
 - Medium: external tools (`yt-dlp`, `ffprobe`) required at runtime.

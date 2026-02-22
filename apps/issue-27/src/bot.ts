@@ -59,7 +59,7 @@ export async function runBot(config: BotConfig): Promise<void> {
       return;
     }
 
-    const validation = validateUrlInput(urlCandidate);
+    const validation = await validateUrlInput(urlCandidate);
     if (!validation.ok || !validation.url) {
       await sendMessageLogged(bot, store, chatId, userId, validation.error ?? "網址無效。");
       return;
@@ -94,6 +94,7 @@ function helpMessage(): string {
     "請直接傳送影片網址，我會使用 yt-dlp 下載並回傳影片。",
     `限制：影片長度不可超過 ${MAX_DURATION_TEXT}，檔案大小不可超過 ${formatFileSize(TELEGRAM_MAX_FILE_BYTES)}。`,
     "若超過限制會直接回覆錯誤。",
+    "為了安全，會拒絕本機或內網網址。",
     "注意：伺服器需預先安裝 yt-dlp。"
   ].join("\n");
 }
@@ -105,6 +106,7 @@ async function processQueueItem(
   config: BotConfig
 ): Promise<void> {
   const startedAt = new Date().toISOString();
+  let downloadPath: string | null = null;
   try {
     let durationSeconds: number | null = await getDurationSeconds(item.url, config.ytDlpPath);
     if (durationSeconds !== null && !isDurationAllowed(durationSeconds)) {
@@ -130,6 +132,7 @@ async function processQueueItem(
 
     const outputDir = path.join(config.dataDir, "downloads");
     const download = await downloadVideo(item.url, outputDir, config.ytDlpPath);
+    downloadPath = download.filePath;
     const stats = await fs.stat(download.filePath);
 
     if (!isFileSizeAllowed(stats.size)) {
@@ -149,7 +152,7 @@ async function processQueueItem(
         userId: item.userId,
         status: "rejected_size",
         durationSeconds: durationSeconds ?? undefined,
-        filePath: download.filePath,
+        filePath: downloadPath,
         fileSizeBytes: stats.size,
         createdAt: startedAt,
         completedAt: new Date().toISOString()
@@ -171,12 +174,12 @@ async function processQueueItem(
           id: item.id,
           url: item.url,
           chatId: item.chatId,
-          userId: item.userId,
-          status: "error",
-          filePath: download.filePath,
-          fileSizeBytes: stats.size,
-          createdAt: startedAt,
-          completedAt: new Date().toISOString(),
+        userId: item.userId,
+        status: "error",
+        filePath: downloadPath,
+        fileSizeBytes: stats.size,
+        createdAt: startedAt,
+        completedAt: new Date().toISOString(),
           error: "Unable to determine duration"
         });
         return;
@@ -193,13 +196,13 @@ async function processQueueItem(
           id: item.id,
           url: item.url,
           chatId: item.chatId,
-          userId: item.userId,
-          status: "rejected_duration",
-          durationSeconds,
-          filePath: download.filePath,
-          fileSizeBytes: stats.size,
-          createdAt: startedAt,
-          completedAt: new Date().toISOString()
+        userId: item.userId,
+        status: "rejected_duration",
+        durationSeconds,
+        filePath: downloadPath,
+        fileSizeBytes: stats.size,
+        createdAt: startedAt,
+        completedAt: new Date().toISOString()
         });
         return;
       }
@@ -214,7 +217,7 @@ async function processQueueItem(
       userId: item.userId,
       status: "sent",
       durationSeconds: durationSeconds ?? undefined,
-      filePath: download.filePath,
+      filePath: downloadPath,
       fileSizeBytes: stats.size,
       createdAt: startedAt,
       completedAt: new Date().toISOString()
@@ -233,6 +236,8 @@ async function processQueueItem(
       error: message
     });
     throw error;
+  } finally {
+    await safeUnlink(downloadPath);
   }
 }
 
@@ -295,4 +300,17 @@ function formatFileSize(bytes: number): string {
   }
   const mb = kb / 1024;
   return `${mb.toFixed(1)} MB`;
+}
+
+async function safeUnlink(filePath: string | null): Promise<void> {
+  if (!filePath) {
+    return;
+  }
+  try {
+    await fs.unlink(filePath);
+  } catch (error: any) {
+    if (error?.code !== "ENOENT") {
+      console.warn(`Unable to delete file ${filePath}:`, error?.message ?? error);
+    }
+  }
 }

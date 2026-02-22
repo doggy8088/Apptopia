@@ -10,6 +10,7 @@ export class DataStore {
   private readonly downloadsPath: string;
   private readonly queuePath: string;
   private readonly settingsPath: string;
+  private writeChain: Promise<void> = Promise.resolve();
 
   constructor(baseDir: string) {
     this.baseDir = baseDir;
@@ -26,15 +27,19 @@ export class DataStore {
   }
 
   async appendConversation(entry: ConversationEntry): Promise<void> {
-    const list = await readJsonFile<ConversationEntry[]>(this.conversationsPath, []);
-    list.push(entry);
-    await writeJsonFile(this.conversationsPath, list);
+    await this.withWriteLock(async () => {
+      const list = await readJsonFile<ConversationEntry[]>(this.conversationsPath, []);
+      list.push(entry);
+      await writeJsonFile(this.conversationsPath, list);
+    });
   }
 
   async appendDownload(entry: DownloadRecord): Promise<void> {
-    const list = await readJsonFile<DownloadRecord[]>(this.downloadsPath, []);
-    list.push(entry);
-    await writeJsonFile(this.downloadsPath, list);
+    await this.withWriteLock(async () => {
+      const list = await readJsonFile<DownloadRecord[]>(this.downloadsPath, []);
+      list.push(entry);
+      await writeJsonFile(this.downloadsPath, list);
+    });
   }
 
   async loadQueue(): Promise<QueueItem[]> {
@@ -42,28 +47,32 @@ export class DataStore {
   }
 
   async saveQueue(items: QueueItem[]): Promise<void> {
-    await writeJsonFile(this.queuePath, items);
+    await this.withWriteLock(async () => {
+      await writeJsonFile(this.queuePath, items);
+    });
   }
 
   async upsertUserSettings(chatId: string): Promise<UserSettings> {
-    const settings = await readJsonFile<Record<string, UserSettings>>(this.settingsPath, {});
-    const existing = settings[chatId];
-    const now = new Date().toISOString();
-    if (existing) {
-      const updated = { ...existing, updatedAt: now };
-      settings[chatId] = updated;
+    return this.withWriteLock(async () => {
+      const settings = await readJsonFile<Record<string, UserSettings>>(this.settingsPath, {});
+      const existing = settings[chatId];
+      const now = new Date().toISOString();
+      if (existing) {
+        const updated = { ...existing, updatedAt: now };
+        settings[chatId] = updated;
+        await writeJsonFile(this.settingsPath, settings);
+        return updated;
+      }
+      const created: UserSettings = {
+        chatId,
+        createdAt: now,
+        updatedAt: now,
+        preferredFormat: "mp4"
+      };
+      settings[chatId] = created;
       await writeJsonFile(this.settingsPath, settings);
-      return updated;
-    }
-    const created: UserSettings = {
-      chatId,
-      createdAt: now,
-      updatedAt: now,
-      preferredFormat: "mp4"
-    };
-    settings[chatId] = created;
-    await writeJsonFile(this.settingsPath, settings);
-    return created;
+      return created;
+    });
   }
 
   async fileExists(filePath: string): Promise<boolean> {
@@ -73,5 +82,14 @@ export class DataStore {
     } catch {
       return false;
     }
+  }
+
+  private async withWriteLock<T>(action: () => Promise<T>): Promise<T> {
+    const task = this.writeChain.then(action);
+    this.writeChain = task.then(
+      () => undefined,
+      () => undefined
+    );
+    return task;
   }
 }

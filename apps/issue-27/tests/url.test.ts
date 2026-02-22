@@ -7,18 +7,33 @@ describe("url utils", () => {
     expect(extractFirstUrl(text)).toBe("https://example.com/video");
   });
 
-  it("validates http url", () => {
-    const result = validateUrlInput("https://example.com");
+  it("validates http url", async () => {
+    const result = await validateUrlInput("https://example.com", { skipDnsLookup: true });
     expect(result.ok).toBe(true);
   });
 
-  it("rejects invalid url", () => {
-    const result = validateUrlInput("not-a-url");
+  it("rejects invalid url", async () => {
+    const result = await validateUrlInput("not-a-url", { skipDnsLookup: true });
     expect(result.ok).toBe(false);
   });
 
-  it("rejects non-http url", () => {
-    const result = validateUrlInput("ftp://example.com");
+  it("rejects non-http url", async () => {
+    const result = await validateUrlInput("ftp://example.com", { skipDnsLookup: true });
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects localhost", async () => {
+    const result = await validateUrlInput("http://localhost:8080", { skipDnsLookup: true });
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects private ip", async () => {
+    const result = await validateUrlInput("http://127.0.0.1/video", { skipDnsLookup: true });
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects loopback ipv6", async () => {
+    const result = await validateUrlInput("http://[::1]/video", { skipDnsLookup: true });
     expect(result.ok).toBe(false);
   });
 });
