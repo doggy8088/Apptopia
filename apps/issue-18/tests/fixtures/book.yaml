@@ -1,0 +1,9 @@
+meta:
+  title: Fixture Book
+structure:
+  chapters:
+    - title: Intro
+      notes:
+        - Note Two
+    - title: Remaining
+      auto: true

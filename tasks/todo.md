@@ -53,3 +53,32 @@
 
 ## Rollback notes
 - Revert `apps/issue-27/src/azureBlob.ts`, `apps/issue-27/src/bot.ts`, `apps/issue-27/src/index.ts`, `apps/issue-27/src/types.ts`, `apps/issue-27/tests/azureBlob.test.ts`, `apps/issue-27/README.md`.
+
+---
+
+# Issue 18 V1 Obsidian Book Compiler
+
+## Scope
+- Build a Node.js + TypeScript CLI that compiles Obsidian vault notes into a book-style Markdown manuscript.
+- Support `--vault`, `--topic`, `--config`, `--output-format`, and `--dry-run` CLI options.
+- Implement tag/folder/keyword filtering, wikilinks, embeds, callouts, and frontmatter parsing.
+- Generate `book.md`, `book.yaml`, and copy assets into `output/assets/`.
+- Provide tests, README, and CI workflow for issue-18.
+
+## Acceptance criteria (verifiable)
+- [ ] `--topic "#python"` selects tagged notes and produces `book.md` with linked chapters.
+- [ ] `--topic "folder:Guides"` filters by directory and outputs only those notes.
+- [ ] `--topic "keyword:kubernetes"` filters by keyword in content.
+- [ ] Callout and wikilink conversions match the documented rules in output.
+- [ ] `--dry-run` prints chapter order without writing output files.
+
+## Verification
+- [x] `cd apps/issue-18 && npm run lint`
+- [x] `cd apps/issue-18 && npm test`
+- [x] `cd apps/issue-18 && npm run build`
+
+## Risks
+- Low: simple graph ordering may differ from advanced PageRank ordering for dense vaults.
+
+## Rollback notes
+- Revert `apps/issue-18/`, `.github/workflows/ci_18.yml`, and `tasks/todo.md`.

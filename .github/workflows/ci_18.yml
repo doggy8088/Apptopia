@@ -1,0 +1,79 @@
+name: CI for Issue 18
+
+on:
+  push:
+    paths:
+      - "apps/issue-18/**"
+      - ".github/workflows/ci_18.yml"
+  pull_request:
+    paths:
+      - "apps/issue-18/**"
+      - ".github/workflows/ci_18.yml"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/issue-18/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/issue-18
+        run: npm ci
+
+      - name: Run type check
+        working-directory: apps/issue-18
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: apps/issue-18
+        run: npm test
+
+      - name: Build
+        working-directory: apps/issue-18
+        run: npm run build
+
+  package:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/issue-18/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/issue-18
+        run: npm ci
+
+      - name: Build
+        working-directory: apps/issue-18
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-18-build
+          path: |
+            apps/issue-18/dist/
+            apps/issue-18/build/
+          retention-days: 90

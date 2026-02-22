@@ -1,0 +1,26 @@
+{
+  "name": "obsidian-book-compiler",
+  "version": "0.1.0",
+  "description": "CLI tool to compile Obsidian vault notes into a book-style Markdown manuscript",
+  "private": true,
+  "type": "commonjs",
+  "bin": {
+    "obsidian-book": "dist/cli.js"
+  },
+  "scripts": {
+    "start": "npm run build --silent && node dist/cli.js",
+    "build": "tsc -p tsconfig.json",
+    "lint": "npm run check",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "yaml": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
