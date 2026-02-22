@@ -1,0 +1,27 @@
+{
+  "name": "telegram-video-downloader-bot",
+  "version": "0.1.0",
+  "description": "Telegram bot that downloads videos via yt-dlp and returns them within Telegram limits",
+  "private": true,
+  "type": "commonjs",
+  "bin": {
+    "telegram-video-downloader-bot": "dist/index.js"
+  },
+  "scripts": {
+    "start": "npm run build --silent && node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/node-telegram-bot-api": "^0.64.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

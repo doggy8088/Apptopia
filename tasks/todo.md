@@ -1,32 +1,24 @@
-# Issue 17 V1 Bootstrap Todo
+# Issue 27 plan
 
-## Scope (Initial implementation)
-- Build a TypeScript CLI scaffold for `k8s-upgrade-validator`.
-- Support version validation for Kubernetes minor versions 1.25+
-- Implement offline scanning from local manifests (`--from-manifests`) for V1 bootstrap.
-- Analyze resources against API deprecation/removal rules.
-- Output reports in `text`, `json`, and `html`.
-- Return non-zero exit code when breaking/warning findings exist; `0` when fully compatible.
-- Add CI workflow `.github/workflows/ci_17.yml`.
+## Scope
+- Implement Telegram bot that downloads videos via yt-dlp and returns them if within limits.
+- Enforce duration <= 60 minutes and file size <= Telegram limit.
+- Persist conversation, downloads, queue status, and user settings under apps/issue-27/data.
+- Provide tests, README, and CI workflow.
 
-## Acceptance criteria (verifiable)
-- [x] Given a manifest using `policy/v1beta1` PDB and versions `1.28 -> 1.31`, report marks it as breaking and suggests `policy/v1`.
-- [x] Given only compatible manifests, CLI exits with code `0` and text report states compatibility.
-- [x] `--output json` writes schema-compliant report object.
-- [x] Invalid target version returns a clear error and supported version range.
+## Checklist
+- [x] Scaffold apps/issue-27 Node + TypeScript project with build/test scripts
+- [x] Implement URL validation, duration parsing, size limit checks
+- [x] Implement queue with persistence
+- [x] Implement yt-dlp integration and Telegram bot handlers
+- [x] Add JSON storage helpers and data folder setup
+- [x] Add tests for validation, limits, and queue
+- [x] Add README and CI workflow
 
-## Verification tasks
-- [x] `cd apps/issue-17 && npm test`
-- [x] `cd apps/issue-17 && npm run build`
-- [x] `cd apps/issue-17 && npm run check`
+## Verification
+- [x] npm test (apps/issue-27)
+- [x] npm run build (apps/issue-27)
 
-## Risk level
-- Medium: Kubernetes live-cluster scanning via kubeconfig is not fully implemented in this bootstrap slice.
-
-## Rollback notes
-- Revert only files under `apps/issue-17/`, `.github/workflows/ci_17.yml`, and `tasks/todo.md`.
-
-## Working notes
-- Prefer minimal in-repo deprecation rule dataset first, then expand.
-- Keep analyzer pure and deterministic for fast unit tests.
-- Keep report schema explicit to support CI integrations.
+## Risks
+- Medium: external tools (yt-dlp, ffprobe) required at runtime
+- Rollback: revert apps/issue-27 and ci_27 workflow changes
