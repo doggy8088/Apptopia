@@ -29,6 +29,7 @@ npm start -- --vault ~/MyVault --topic "folder:DevOps/K8s" --config ./book.yaml 
 - `--config <path>`：自訂 `book.yaml`
 - `--output-dir <path>`：輸出目錄（預設 `output`）
 - `--output-format <format>`：僅支援 `markdown`
+- `--language <code>`：預設書籍語言代碼（預設 `zh-TW`）
 - `--dry-run`：僅輸出章節順序預覽，不寫檔
 
 ## 測試

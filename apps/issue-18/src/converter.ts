@@ -45,6 +45,10 @@ export function renderNote(note: Note, context: ConverterContext, stack: Set<str
 
     if (isImageFile(cleaned)) {
       const safeRelative = sanitizeRelativePath(cleaned);
+      if (!safeRelative) {
+        warnings.push(`Skipped unsafe asset path: ${cleaned}`);
+        return `> [Skipped unsafe asset: ${cleaned}]`;
+      }
       const assetPath = path.resolve(context.vaultPath, safeRelative);
       const outputRelativePath = toPosixPath(safeRelative);
       assets.push({ sourcePath: assetPath, outputRelativePath: path.posix.join("assets", outputRelativePath) });
@@ -122,10 +126,21 @@ function stripInlineTags(content: string): string {
   return content.replace(/(^|\s)#([A-Za-z0-9_-]+)/g, "$1$2");
 }
 
-function sanitizeRelativePath(inputPath: string): string {
-  const normalized = path.normalize(inputPath).replace(/^([./\\])+/, "");
-  if (normalized.startsWith("..")) {
-    return normalized.replace(/^(\.\.(\/|\\|$))+/, "");
+function sanitizeRelativePath(inputPath: string): string | null {
+  const trimmed = inputPath.replace(/\0/g, "").trim();
+  if (!trimmed) {
+    return null;
   }
-  return normalized;
+  if (path.isAbsolute(trimmed)) {
+    return null;
+  }
+  if (/^[A-Za-z]:[\\/]/.test(trimmed) || /^\\\\/.test(trimmed)) {
+    return null;
+  }
+  const normalized = path.normalize(trimmed).replace(/^([./\\])+/, "");
+  const segments = normalized.split(/[\\/]+/).filter(Boolean);
+  if (segments.length === 0 || segments.some((segment) => segment === "..")) {
+    return null;
+  }
+  return segments.join(path.sep);
 }

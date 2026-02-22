@@ -22,6 +22,7 @@ export function buildBookPlan(
   filter: TopicFilter,
   vaultPath: string,
   topic: string,
+  defaultLanguage: string,
   config?: BookConfig
 ): BookPlan {
   const warnings: string[] = [];
@@ -73,7 +74,7 @@ export function buildBookPlan(
   const fallbackTitle = path.basename(vaultPath) || "Obsidian Book";
   const title = config?.meta?.title ?? fallbackTitle;
   const author = config?.meta?.author ?? "";
-  const language = config?.meta?.language ?? "zh-TW";
+  const language = config?.meta?.language ?? defaultLanguage;
 
   const baseConfig: BookConfig = {
     meta: {

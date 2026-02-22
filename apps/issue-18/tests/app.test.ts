@@ -7,6 +7,7 @@ import { ReporterIO } from "../src/types";
 
 const vaultPath = path.resolve("tests/fixtures/vault");
 const configPath = path.resolve("tests/fixtures/book.yaml");
+const badConfigPath = path.resolve("tests/fixtures/bad-book.yaml");
 
 function createCapture(): {
   io: ReporterIO;
@@ -127,6 +128,25 @@ describe("obsidian-book-compiler", () => {
     const noteThreeIndex = book.indexOf("Note Three");
     expect(introIndex).toBeGreaterThan(-1);
     expect(introIndex).toBeLessThan(noteThreeIndex);
+  });
+
+  it("rejects invalid book.yaml", async () => {
+    const outputDir = await createTempDir();
+    const capture = createCapture();
+
+    await expect(
+      runWithOptions(
+        {
+          vault: vaultPath,
+          topic: "keyword:kubernetes",
+          configPath: badConfigPath,
+          outputDir,
+          outputFormat: "markdown",
+          dryRun: false
+        },
+        capture.io
+      )
+    ).rejects.toThrow("Invalid config file");
   });
 
   it("supports dry-run preview", async () => {

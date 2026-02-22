@@ -14,6 +14,7 @@ async function main(): Promise<void> {
     .option("--config <path>", "Path to book.yaml configuration")
     .option("--output-dir <path>", "Output directory", "output")
     .option("--output-format <format>", "Output format (markdown)", "markdown")
+    .option("--language <code>", "Default language for book metadata", "zh-TW")
     .option("--dry-run", "Preview chapter order without writing output", false);
 
   program.parse(process.argv);
@@ -24,20 +25,17 @@ async function main(): Promise<void> {
     config?: string;
     outputDir: string;
     outputFormat: string;
+    language: string;
     dryRun: boolean;
   }>();
-
-  const outputFormat = opts.outputFormat as OutputFormat;
-  if (outputFormat !== "markdown") {
-    throw new Error("Only markdown output is supported in V1.");
-  }
 
   const exitCode = await runWithOptions({
     vault: opts.vault,
     topic: opts.topic,
     configPath: opts.config,
     outputDir: opts.outputDir,
-    outputFormat,
+    outputFormat: opts.outputFormat as OutputFormat,
+    language: opts.language,
     dryRun: opts.dryRun
   });
 
