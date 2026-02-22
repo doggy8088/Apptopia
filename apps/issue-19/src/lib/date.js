@@ -1,9 +1,11 @@
 export function nowMonth() {
-  return new Date().toISOString().slice(0, 7);
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
 export function todayDate() {
-  return new Date().toISOString().slice(0, 10);
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 export function isInMonth(dateString, month) {
@@ -23,7 +25,9 @@ export function monthDays(month) {
   const date = new Date(year, mon - 1, 1);
   const days = [];
   while (date.getMonth() === mon - 1) {
-    days.push(date.toISOString().slice(0, 10));
+    days.push(
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+    );
     date.setDate(date.getDate() + 1);
   }
   return days;

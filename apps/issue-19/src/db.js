@@ -66,6 +66,21 @@ export async function addItem(db, storeName, value) {
   });
 }
 
+export async function addAllItems(db, storeName, values) {
+  if (!values.length) {
+    return;
+  }
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    const store = tx.objectStore(storeName);
+    for (const value of values) {
+      store.add(value);
+    }
+  });
+}
+
 export async function deleteItem(db, storeName, key) {
   return new Promise((resolve, reject) => {
     const request = txStore(db, storeName, "readwrite").delete(key);
@@ -79,7 +94,7 @@ export async function ensureSeedData(db) {
   if (existing.length > 0) {
     return;
   }
-  await Promise.all(DEFAULT_CATEGORIES.map(category => addItem(db, "categories", category)));
+  await addAllItems(db, "categories", DEFAULT_CATEGORIES);
 }
 
 export function getDefaultCategories() {
