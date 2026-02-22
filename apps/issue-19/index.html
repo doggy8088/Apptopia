@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open Moneybook</title>
+    <meta name="description" content="隱私優先的個人記帳理財工具，資料只留在你的裝置。" />
+    <meta name="theme-color" content="#0f3d3e" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="src/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <div class="aurora"></div>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">Open Moneybook</p>
+        <h1>隱私優先的記帳與預算平台</h1>
+        <p class="subtitle">所有資料只留在你的裝置，快速掌握本月收支、預算與消費趨勢。</p>
+      </div>
+      <div class="header-actions">
+        <div class="chip">
+          <span class="dot"></span>
+          IndexedDB 已啟用
+        </div>
+        <div class="chip">PWA Ready</div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>本月摘要</h2>
+          <div class="month-picker">
+            <label for="month">月份</label>
+            <input id="month" type="month" />
+          </div>
+        </div>
+        <div class="summary-grid">
+          <article class="summary-card income">
+            <p>收入</p>
+            <h3 id="summary-income">$0</h3>
+          </article>
+          <article class="summary-card expense">
+            <p>支出</p>
+            <h3 id="summary-expense">$0</h3>
+          </article>
+          <article class="summary-card balance">
+            <p>結餘</p>
+            <h3 id="summary-balance">$0</h3>
+          </article>
+        </div>
+        <div id="budget-alert" class="alert hidden"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>快速記帳</h2>
+          <p>單帳戶版本，支援收入/支出與即時預算提醒。</p>
+        </div>
+        <form id="tx-form" class="form-grid">
+          <label>
+            日期
+            <input type="date" name="date" required />
+          </label>
+          <label>
+            類型
+            <select name="type" id="tx-type" required>
+              <option value="expense">支出</option>
+              <option value="income">收入</option>
+            </select>
+          </label>
+          <label>
+            金額
+            <input type="number" name="amount" min="0" step="1" placeholder="350" required />
+          </label>
+          <label>
+            分類
+            <select name="category" id="tx-category" required></select>
+          </label>
+          <label>
+            帳戶
+            <select name="account" id="tx-account" required>
+              <option value="現金">現金</option>
+              <option value="銀行">銀行</option>
+              <option value="信用卡">信用卡</option>
+              <option value="電子支付">電子支付</option>
+            </select>
+          </label>
+          <label class="note">
+            備註
+            <input type="text" name="note" placeholder="午餐便當" />
+          </label>
+          <button type="submit" class="primary">新增紀錄</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>預算管理</h2>
+          <p>針對支出分類設定月預算，超支即時提醒。</p>
+        </div>
+        <form id="budget-form" class="form-grid compact">
+          <label>
+            分類
+            <select id="budget-category" required></select>
+          </label>
+          <label>
+            月預算
+            <input type="number" id="budget-amount" min="0" step="1" placeholder="5000" required />
+          </label>
+          <button type="submit" class="ghost">設定 / 更新</button>
+        </form>
+        <div id="budget-list" class="budget-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>報表分析</h2>
+          <p>依月份呈現分類分布與每日現金流。</p>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3>支出分類</h3>
+            <canvas id="pie-chart" height="220"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>每日結餘</h3>
+            <canvas id="line-chart" height="220"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>交易明細</h2>
+          <p>支援快速刪除與 CSV 匯入匯出。</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>類型</th>
+                <th>分類</th>
+                <th>帳戶</th>
+                <th>金額</th>
+                <th>備註</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tx-list"></tbody>
+          </table>
+        </div>
+        <div class="csv-actions">
+          <button id="export-csv" class="ghost">匯出 CSV</button>
+          <label class="file-input">
+            匯入 CSV
+            <input type="file" id="import-csv" accept=".csv,text/csv" />
+          </label>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Open Moneybook V1 · 純前端 · GitHub Pages Ready</p>
+      <p class="muted">CSV 格式：日期, 類型, 金額, 分類, 帳戶, 備註</p>
+    </footer>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "Open Moneybook",
+  "short_name": "Moneybook",
+  "description": "隱私優先的記帳理財工具，資料只留在本機。",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f1ea",
+  "theme_color": "#0f3d3e",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
