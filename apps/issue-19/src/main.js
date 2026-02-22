@@ -1,4 +1,4 @@
-import { addItem, deleteItem, ensureSeedData, getAll, openDB, putItem } from "./db.js";
+import { addAllItems, addItem, deleteItem, ensureSeedData, getAll, openDB, putItem } from "./db.js";
 import { csvToTransactions, transactionsToCsv } from "./lib/csv.js";
 import { categoryTotals, dailyBalanceSeries, filterTransactionsByMonth, monthlyTotals } from "./lib/budget.js";
 import { formatCurrency, nowMonth, todayDate } from "./lib/date.js";
@@ -178,29 +178,19 @@ function wireEvents() {
     try {
       const text = await file.text();
       const imported = csvToTransactions(text);
-      const enriched = [];
+      const { newCategories, newTransactions } = buildImportBatch(imported);
 
-      for (const item of imported) {
-        const categoryId = await ensureCategory(item.category, item.type);
-        enriched.push({
-          id: crypto.randomUUID(),
-          date: item.date,
-          type: item.type,
-          amount: item.amount,
-          categoryId,
-          category: item.category,
-          account: item.account,
-          note: item.note,
-          createdAt: new Date().toISOString()
-        });
+      if (newCategories.length) {
+        await addAllItems(state.db, "categories", newCategories);
+        state.categories.push(...newCategories);
       }
 
-      for (const tx of enriched) {
-        await addItem(state.db, "transactions", tx);
+      if (newTransactions.length) {
+        await addAllItems(state.db, "transactions", newTransactions);
+        state.transactions = [...newTransactions, ...state.transactions].sort((a, b) => b.date.localeCompare(a.date));
       }
 
-      state.transactions = [...enriched, ...state.transactions].sort((a, b) => b.date.localeCompare(a.date));
-      showToast(`成功匯入 ${enriched.length} 筆交易`);
+      showToast(`成功匯入 ${newTransactions.length} 筆交易`);
       render();
     } catch (error) {
       showToast(error.message || "CSV 匯入失敗", "warn");
@@ -210,20 +200,40 @@ function wireEvents() {
   });
 }
 
-async function ensureCategory(name, type) {
-  const existing = state.categories.find(cat => cat.name === name && cat.type === type);
-  if (existing) {
-    return existing.id;
+function buildImportBatch(imported) {
+  const categoryMap = new Map(state.categories.map(cat => [`${cat.type}:${cat.name}`, cat.id]));
+  const newCategories = [];
+  const newTransactions = [];
+
+  for (const item of imported) {
+    const categoryName = item.category?.trim() || "未分類";
+    const key = `${item.type}:${categoryName}`;
+    let categoryId = categoryMap.get(key);
+    if (!categoryId) {
+      categoryId = `${item.type}-custom-${crypto.randomUUID()}`;
+      categoryMap.set(key, categoryId);
+      newCategories.push({
+        id: categoryId,
+        name: categoryName,
+        type: item.type,
+        color: "#7c6f64"
+      });
+    }
+
+    newTransactions.push({
+      id: crypto.randomUUID(),
+      date: item.date,
+      type: item.type,
+      amount: item.amount,
+      categoryId,
+      category: categoryName,
+      account: item.account,
+      note: item.note,
+      createdAt: new Date().toISOString()
+    });
   }
-  const category = {
-    id: `${type}-custom-${crypto.randomUUID()}`,
-    name,
-    type,
-    color: "#7c6f64"
-  };
-  await addItem(state.db, "categories", category);
-  state.categories.push(category);
-  return category.id;
+
+  return { newCategories, newTransactions };
 }
 
 function render() {
@@ -239,9 +249,18 @@ function render() {
 function renderCategoryOptions() {
   const type = elements.txType.value;
   const options = state.categories.filter(cat => cat.type === type);
-  elements.txCategory.innerHTML = options
-    .map(option => `<option value="${option.id}">${option.name}</option>`)
-    .join("");
+  const selected = elements.txCategory.value;
+  const fragment = document.createDocumentFragment();
+  for (const option of options) {
+    const item = document.createElement("option");
+    item.value = option.id;
+    item.textContent = option.name;
+    fragment.appendChild(item);
+  }
+  elements.txCategory.replaceChildren(fragment);
+  if (selected) {
+    elements.txCategory.value = selected;
+  }
   if (!elements.txForm.querySelector("input[name='date']").value) {
     elements.txForm.querySelector("input[name='date']").value = todayDate();
   }
@@ -249,9 +268,18 @@ function renderCategoryOptions() {
 
 function renderBudgetOptions() {
   const options = state.categories.filter(cat => cat.type === "expense");
-  elements.budgetCategory.innerHTML = options
-    .map(option => `<option value="${option.id}">${option.name}</option>`)
-    .join("");
+  const selected = elements.budgetCategory.value;
+  const fragment = document.createDocumentFragment();
+  for (const option of options) {
+    const item = document.createElement("option");
+    item.value = option.id;
+    item.textContent = option.name;
+    fragment.appendChild(item);
+  }
+  elements.budgetCategory.replaceChildren(fragment);
+  if (selected) {
+    elements.budgetCategory.value = selected;
+  }
 }
 
 function renderSummary() {
@@ -263,28 +291,46 @@ function renderSummary() {
 
 function renderBudgets() {
   const totals = categoryTotals(state.transactions, state.month, "expense");
-  elements.budgetList.innerHTML = state.budgets
-    .map(budget => {
-      const category = state.categories.find(cat => cat.id === budget.categoryId);
-      const spent = totals.get(budget.categoryId) || 0;
-      const ratio = budget.amount ? Math.min(spent / budget.amount, 1.4) : 0;
-      const isOver = spent > budget.amount;
-      return `
-        <div class="budget-item">
-          <h4>${category?.name || "分類"}</h4>
-          <p>${formatCurrency(spent)} / ${formatCurrency(budget.amount)}</p>
-          <div class="progress ${isOver ? "over" : ""}">
-            <span style="width:${Math.min(ratio * 100, 100)}%"></span>
-          </div>
-          <p class="muted">${isOver ? "已超支" : "尚可用"}</p>
-        </div>
-      `;
-    })
-    .join("");
-
+  elements.budgetList.replaceChildren();
   if (!state.budgets.length) {
-    elements.budgetList.innerHTML = "<p class=\"muted\">尚未設定預算</p>";
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.textContent = "尚未設定預算";
+    elements.budgetList.appendChild(empty);
+    return;
   }
+
+  const fragment = document.createDocumentFragment();
+  for (const budget of state.budgets) {
+    const category = state.categories.find(cat => cat.id === budget.categoryId);
+    const spent = totals.get(budget.categoryId) || 0;
+    const ratio = budget.amount ? Math.min(spent / budget.amount, 1.4) : 0;
+    const isOver = spent > budget.amount;
+
+    const item = document.createElement("div");
+    item.className = "budget-item";
+
+    const title = document.createElement("h4");
+    title.textContent = category?.name || "分類";
+
+    const amounts = document.createElement("p");
+    amounts.textContent = `${formatCurrency(spent)} / ${formatCurrency(budget.amount)}`;
+
+    const progress = document.createElement("div");
+    progress.className = `progress${isOver ? " over" : ""}`;
+    const bar = document.createElement("span");
+    bar.style.width = `${Math.min(ratio * 100, 100)}%`;
+    progress.appendChild(bar);
+
+    const status = document.createElement("p");
+    status.className = "muted";
+    status.textContent = isOver ? "已超支" : "尚可用";
+
+    item.append(title, amounts, progress, status);
+    fragment.appendChild(item);
+  }
+
+  elements.budgetList.appendChild(fragment);
 }
 
 function updateBudgetAlert() {
@@ -311,27 +357,49 @@ function updateBudgetAlert() {
 
 function renderTransactions() {
   const monthTx = filterTransactionsByMonth(state.transactions, state.month);
-  elements.txList.innerHTML = monthTx
-    .map(tx => {
-      const label = tx.type === "income" ? "收入" : "支出";
-      const amount = tx.type === "income" ? `+${formatCurrency(tx.amount)}` : `-${formatCurrency(tx.amount)}`;
-      return `
-        <tr>
-          <td>${tx.date}</td>
-          <td>${label}</td>
-          <td>${tx.category}</td>
-          <td>${tx.account}</td>
-          <td>${amount}</td>
-          <td>${tx.note || ""}</td>
-          <td><button data-id="${tx.id}">刪除</button></td>
-        </tr>
-      `;
-    })
-    .join("");
-
+  elements.txList.replaceChildren();
   if (!monthTx.length) {
-    elements.txList.innerHTML = "<tr><td colspan=\"7\" class=\"muted\">尚無交易</td></tr>";
+    const emptyRow = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 7;
+    cell.className = "muted";
+    cell.textContent = "尚無交易";
+    emptyRow.appendChild(cell);
+    elements.txList.appendChild(emptyRow);
+    return;
   }
+
+  const fragment = document.createDocumentFragment();
+  for (const tx of monthTx) {
+    const row = document.createElement("tr");
+    const label = tx.type === "income" ? "收入" : "支出";
+    const amount = tx.type === "income" ? `+${formatCurrency(tx.amount)}` : `-${formatCurrency(tx.amount)}`;
+
+    const cells = [
+      tx.date,
+      label,
+      tx.category,
+      tx.account,
+      amount,
+      tx.note || ""
+    ];
+
+    for (const value of cells) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      row.appendChild(cell);
+    }
+
+    const actionCell = document.createElement("td");
+    const button = document.createElement("button");
+    button.dataset.id = tx.id;
+    button.textContent = "刪除";
+    actionCell.appendChild(button);
+    row.appendChild(actionCell);
+
+    fragment.appendChild(row);
+  }
+  elements.txList.appendChild(fragment);
 }
 
 function renderCharts() {
