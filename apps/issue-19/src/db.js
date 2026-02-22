@@ -81,6 +81,25 @@ export async function addAllItems(db, storeName, values) {
   });
 }
 
+export async function addBatch(db, batches) {
+  const entries = Object.entries(batches).filter(([, values]) => values?.length);
+  if (!entries.length) {
+    return;
+  }
+  const storeNames = entries.map(([name]) => name);
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeNames, "readwrite");
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    for (const [name, values] of entries) {
+      const store = tx.objectStore(name);
+      for (const value of values) {
+        store.add(value);
+      }
+    }
+  });
+}
+
 export async function deleteItem(db, storeName, key) {
   return new Promise((resolve, reject) => {
     const request = txStore(db, storeName, "readwrite").delete(key);

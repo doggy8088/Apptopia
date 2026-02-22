@@ -1,3 +1,5 @@
+import { normalizeDateInput } from "./date.js";
+
 const HEADER = ["日期", "類型", "金額", "分類", "帳戶", "備註"];
 
 export function parseCsv(text) {
@@ -98,6 +100,7 @@ export function csvToTransactions(text) {
     if (!date || !typeLabel || !amountValue || !category || !account) {
       throw new Error("CSV 欄位不可為空");
     }
+    const normalizedDate = normalizeDateInput(date);
     const type = typeLabel === "收入" ? "income" : typeLabel === "支出" ? "expense" : null;
     if (!type) {
       throw new Error(`無法辨識的類型: ${typeLabel}`);
@@ -107,7 +110,7 @@ export function csvToTransactions(text) {
       throw new Error(`金額格式錯誤: ${amountValue}`);
     }
     return {
-      date,
+      date: normalizedDate,
       type,
       amount,
       category,
