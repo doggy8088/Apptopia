@@ -28,7 +28,15 @@ export interface DownloadRecord {
   url: string;
   chatId: string;
   userId: string;
-  status: "started" | "rejected_duration" | "rejected_size" | "sent" | "error" | "error_send_retryable";
+  status:
+    | "started"
+    | "rejected_duration"
+    | "rejected_size"
+    | "sent"
+    | "uploaded_blob"
+    | "error"
+    | "error_send_retryable"
+    | "error_blob_upload";
   durationSeconds?: number;
   filePath?: string;
   fileSizeBytes?: number;

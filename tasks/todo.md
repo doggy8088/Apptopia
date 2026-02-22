@@ -27,3 +27,29 @@
 
 ## Rollback notes
 - Revert files under `apps/issue-27/`, `.github/workflows/ci_27.yml`, and `tasks/todo.md`.
+
+---
+
+# Issue 27 Oversize Azure Blob Fallback (2026-02-22)
+
+## Scope
+- When a downloaded file exceeds Telegram Bot size limit, optionally upload to Azure Blob Container via SAS URL and reply with the uploaded link instead of rejecting immediately.
+- Keep original rejection behavior when the SAS URL env var is not configured.
+- Return a human-readable error message when Azure upload is configured but fails.
+- Document the new env var and 7-day retention behavior in `apps/issue-27/README.md`.
+
+## Acceptance criteria (verifiable)
+- [ ] `AZURE_BLOB_CONTAINER_SAS_URL` unset: oversized files still return the original Telegram-limit rejection message.
+- [ ] `AZURE_BLOB_CONTAINER_SAS_URL` set and upload succeeds: bot replies with Azure Blob link for oversized files.
+- [ ] `AZURE_BLOB_CONTAINER_SAS_URL` set and upload fails: bot replies with a human-readable reason.
+- [ ] README documents the new env var and notes Azure lifecycle auto-delete after 7 days.
+
+## Verification
+- [x] `cd apps/issue-27 && npm test`
+- [x] `cd apps/issue-27 && npm run build`
+
+## Risks
+- Medium: Blob upload requires correct container-level SAS permissions and expiry.
+
+## Rollback notes
+- Revert `apps/issue-27/src/azureBlob.ts`, `apps/issue-27/src/bot.ts`, `apps/issue-27/src/index.ts`, `apps/issue-27/src/types.ts`, `apps/issue-27/tests/azureBlob.test.ts`, `apps/issue-27/README.md`.

@@ -12,11 +12,17 @@ import { MAX_DURATION_SECONDS, TELEGRAM_MAX_FILE_BYTES } from "./constants";
 import { isDurationAllowed, isFileSizeAllowed } from "./limits";
 import { downloadVideo, getDurationSeconds } from "./ytDlp";
 import { probeDurationSeconds } from "./ffprobe";
+import {
+  buildAzureBlobObjectName,
+  describeAzureBlobUploadFailure,
+  uploadFileToAzureBlobContainer
+} from "./azureBlob";
 
 export interface BotConfig {
   token: string;
   dataDir: string;
   ytDlpPath: string;
+  azureBlobContainerSasUrl?: string;
 }
 
 const MAX_DURATION_TEXT = formatDuration(MAX_DURATION_SECONDS);
@@ -262,7 +268,7 @@ function helpMessage(): string {
   return [
     "請直接傳送影片網址，我會使用 yt-dlp 下載並回傳影片。",
     `限制：影片長度不可超過 ${MAX_DURATION_TEXT}，檔案大小不可超過 ${formatFileSize(TELEGRAM_MAX_FILE_BYTES)}。`,
-    "若超過限制會直接回覆錯誤。",
+    "若超過限制會回覆錯誤；若已設定 Azure Blob SAS，超過 Telegram 大小上限時會改回傳下載連結。",
     "為了安全，會拒絕本機或內網網址。",
     "注意：伺服器需預先安裝 yt-dlp。"
   ].join("\n");
@@ -334,31 +340,115 @@ async function processQueueItem(
     });
 
     if (!isFileSizeAllowed(stats.size)) {
-      logWarn("queue_item.rejected_size", {
+      if (!config.azureBlobContainerSasUrl) {
+        logWarn("queue_item.rejected_size", {
+          queueItemId: item.id,
+          bytes: stats.size
+        });
+        await sendMessageLogged(
+          bot,
+          store,
+          item.chatId,
+          item.userId,
+          `檔案大小 ${formatFileSize(stats.size)} 超過 Telegram 上限 ${formatFileSize(
+            TELEGRAM_MAX_FILE_BYTES
+          )}，已取消回傳。`
+        );
+        await store.appendDownload({
+          id: item.id,
+          url: item.url,
+          chatId: item.chatId,
+          userId: item.userId,
+          status: "rejected_size",
+          durationSeconds: durationSeconds ?? undefined,
+          filePath: downloadPath,
+          fileSizeBytes: stats.size,
+          createdAt: startedAt,
+          completedAt: new Date().toISOString()
+        });
+        return;
+      }
+
+      logInfo("queue_item.azure_upload.start", {
         queueItemId: item.id,
         bytes: stats.size
       });
-      await sendMessageLogged(
-        bot,
-        store,
-        item.chatId,
-        item.userId,
-        `檔案大小 ${formatFileSize(stats.size)} 超過 Telegram 上限 ${formatFileSize(
-          TELEGRAM_MAX_FILE_BYTES
-        )}，已取消回傳。`
-      );
-      await store.appendDownload({
-        id: item.id,
-        url: item.url,
-        chatId: item.chatId,
-        userId: item.userId,
-        status: "rejected_size",
-        durationSeconds: durationSeconds ?? undefined,
-        filePath: downloadPath,
-        fileSizeBytes: stats.size,
-        createdAt: startedAt,
-        completedAt: new Date().toISOString()
-      });
+      try {
+        const blobName = buildAzureBlobObjectName(download.filePath, `telegram-bot/${item.chatId}/${item.id}`);
+        const uploadResult = await uploadFileToAzureBlobContainer({
+          containerSasUrl: config.azureBlobContainerSasUrl,
+          filePath: download.filePath,
+          blobName
+        });
+        logInfo("queue_item.azure_upload.done", {
+          queueItemId: item.id,
+          bytes: stats.size,
+          blobName: uploadResult.blobName,
+          blobUrl: uploadResult.blobUrl
+        });
+        await sendMessageLogged(
+          bot,
+          store,
+          item.chatId,
+          item.userId,
+          [
+            `檔案大小 ${formatFileSize(stats.size)} 超過 Telegram 上限 ${formatFileSize(
+              TELEGRAM_MAX_FILE_BYTES
+            )}，已改為上傳到 Azure Blob。`,
+            `下載連結：${uploadResult.accessUrl}`,
+            "注意：此連結對應檔案會依 Azure Storage 生命週期規則自動刪除（目前設定為 7 天）。"
+          ].join("\n")
+        );
+        await store.appendDownload({
+          id: item.id,
+          url: item.url,
+          chatId: item.chatId,
+          userId: item.userId,
+          status: "uploaded_blob",
+          durationSeconds: durationSeconds ?? undefined,
+          filePath: downloadPath,
+          fileSizeBytes: stats.size,
+          createdAt: startedAt,
+          completedAt: new Date().toISOString()
+        });
+        logInfo("queue_item.recorded_blob_upload", {
+          queueItemId: item.id,
+          blobName: uploadResult.blobName,
+          blobUrl: uploadResult.blobUrl
+        });
+      } catch (azureUploadError: any) {
+        const reason = describeAzureBlobUploadFailure(azureUploadError);
+        logWarn("queue_item.azure_upload.failed", {
+          queueItemId: item.id,
+          bytes: stats.size,
+          error: reason
+        });
+        await sendMessageLogged(
+          bot,
+          store,
+          item.chatId,
+          item.userId,
+          [
+            `檔案大小 ${formatFileSize(stats.size)} 超過 Telegram 上限 ${formatFileSize(
+              TELEGRAM_MAX_FILE_BYTES
+            )}。`,
+            `已嘗試改上傳到 Azure Blob，但失敗了：${reason}`
+          ].join("\n")
+        );
+        await store.appendDownload({
+          id: item.id,
+          url: item.url,
+          chatId: item.chatId,
+          userId: item.userId,
+          status: "error_blob_upload",
+          durationSeconds: durationSeconds ?? undefined,
+          filePath: downloadPath,
+          fileSizeBytes: stats.size,
+          createdAt: startedAt,
+          completedAt: new Date().toISOString(),
+          error: reason
+        });
+      }
       return;
     }
 
@@ -928,6 +1018,22 @@ function buildProgressStatusFromLog(
         terminal: true
       };
     }
+    case "queue_item.azure_upload.start": {
+      const bytes = typeof data?.bytes === "number" ? data.bytes : null;
+      return {
+        status:
+          bytes === null
+            ? "檔案超過 Telegram 上限，改為上傳 Azure Blob..."
+            : `檔案大小 ${formatFileSize(bytes)} 超過 Telegram 上限，改為上傳 Azure Blob...`,
+        terminal: false
+      };
+    }
+    case "queue_item.azure_upload.done":
+      return { status: "已上傳到 Azure Blob，正在回覆下載連結...", terminal: false };
+    case "queue_item.recorded_blob_upload":
+      return { status: "已完成，下載連結已回覆。", terminal: true };
+    case "queue_item.azure_upload.failed":
+      return { status: "改上傳 Azure Blob 失敗，已回覆原因。", terminal: true };
     case "queue_item.duration_unknown":
       return { status: "無法判斷影片長度，已取消回傳。", terminal: true };
     case "queue_item.send_video.start":
