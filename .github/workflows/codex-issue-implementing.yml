@@ -103,6 +103,24 @@ jobs:
         run: |
           set -euo pipefail
 
+          echo "::group::Pick step debug context"
+          echo "Repository: $GH_REPO"
+          echo "Run number: $GITHUB_RUN_NUMBER"
+          echo "Workflow trigger: ${{ github.event_name }}"
+          echo "Query: open issues with label=accepted sorted by created desc"
+          echo "::endgroup::"
+
+          echo "::group::Candidate accepted issues (top 5)"
+          gh issue list \
+            --repo "$GH_REPO" \
+            --state open \
+            --label accepted \
+            --search "sort:created-desc" \
+            --limit 5 \
+            --json number,title,url,createdAt \
+          | jq '.'
+          echo "::endgroup::"
+
           ISSUE_JSON="$(gh issue list \
             --repo "$GH_REPO" \
             --state open \
@@ -112,28 +130,52 @@ jobs:
             --json number,title,url,createdAt)"
 
           ISSUE_COUNT="$(echo "$ISSUE_JSON" | jq 'length')"
+          echo "::group::Selected issue query result (top 1)"
+          echo "$ISSUE_JSON" | jq '.'
+          echo "ISSUE_COUNT=$ISSUE_COUNT"
+          echo "::endgroup::"
+
           if [ "$ISSUE_COUNT" -eq 0 ]; then
+            echo "No open accepted issue found. Implement step will be skipped."
             echo "issue_exists=false" >> "$GITHUB_OUTPUT"
             echo "skip_reason=no-accepted-issue" >> "$GITHUB_OUTPUT"
+            echo "has_open_pr=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           ISSUE_NUMBER="$(echo "$ISSUE_JSON" | jq -r '.[0].number')"
           ISSUE_TITLE="$(echo "$ISSUE_JSON" | jq -r '.[0].title')"
           ISSUE_URL="$(echo "$ISSUE_JSON" | jq -r '.[0].url')"
+          ISSUE_CREATED_AT="$(echo "$ISSUE_JSON" | jq -r '.[0].createdAt')"
 
-          EXISTING_PR_URL="$(gh pr list \
+          echo "::group::Selected issue details"
+          echo "ISSUE_NUMBER=$ISSUE_NUMBER"
+          echo "ISSUE_TITLE=$ISSUE_TITLE"
+          echo "ISSUE_URL=$ISSUE_URL"
+          echo "ISSUE_CREATED_AT=$ISSUE_CREATED_AT"
+          echo "::endgroup::"
+
+          MATCHING_PRS_JSON="$(gh pr list \
             --repo "$GH_REPO" \
             --state open \
             --search "is:open is:pr repo:$GH_REPO \"#${ISSUE_NUMBER}\" in:body" \
-            --json url \
-            --jq '.[0].url // empty')"
+            --json number,title,url,headRefName,state)"
+          MATCHING_PR_COUNT="$(echo "$MATCHING_PRS_JSON" | jq 'length')"
+          EXISTING_PR_URL="$(echo "$MATCHING_PRS_JSON" | jq -r '.[0].url // empty')"
+
+          echo "::group::Open PR check for selected issue"
+          echo "PR search query: is:open is:pr repo:$GH_REPO \"#${ISSUE_NUMBER}\" in:body"
+          echo "MATCHING_PR_COUNT=$MATCHING_PR_COUNT"
+          echo "$MATCHING_PRS_JSON" | jq '.'
+          echo "::endgroup::"
 
           if [ -n "$EXISTING_PR_URL" ]; then
-            echo "issue_exists=false" >> "$GITHUB_OUTPUT"
-            echo "skip_reason=already-has-open-pr" >> "$GITHUB_OUTPUT"
+            echo "Selected issue already has an open PR. Continue to Implement step for review-followup handling."
+            echo "has_open_pr=true" >> "$GITHUB_OUTPUT"
             echo "existing_pr_url=$EXISTING_PR_URL" >> "$GITHUB_OUTPUT"
-            exit 0
+          else
+            echo "No open PR linked by body reference for issue #$ISSUE_NUMBER."
+            echo "has_open_pr=false" >> "$GITHUB_OUTPUT"
           fi
 
           ISSUE_SLUG="$(echo "$ISSUE_TITLE" \
@@ -148,6 +190,10 @@ jobs:
           if git ls-remote --exit-code --heads origin "$ISSUE_BRANCH" >/dev/null 2>&1; then
             ISSUE_BRANCH="${ISSUE_BRANCH}-run-${GITHUB_RUN_NUMBER}"
           fi
+
+          echo "::group::Computed branch"
+          echo "ISSUE_BRANCH=$ISSUE_BRANCH"
+          echo "::endgroup::"
 
           echo "issue_exists=true" >> "$GITHUB_OUTPUT"
           echo "issue_number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
@@ -170,12 +216,16 @@ jobs:
           ISSUE_TITLE: ${{ steps.pick.outputs.issue_title }}
           ISSUE_URL: ${{ steps.pick.outputs.issue_url }}
           ISSUE_BRANCH: ${{ steps.pick.outputs.issue_branch }}
+          HAS_OPEN_PR: ${{ steps.pick.outputs.has_open_pr }}
+          EXISTING_PR_URL: ${{ steps.pick.outputs.existing_pr_url }}
         run: |
           codex exec --dangerously-bypass-approvals-and-sandbox --color never "
           你正在 GitHub Actions 中執行，請使用 gh CLI、git 與本地檔案操作完成任務。
           目標是處理最新一筆 open 且有 accepted 標籤的 Issue。
           本次目標 Issue 為 #$ISSUE_NUMBER：$ISSUE_TITLE
           Issue URL：$ISSUE_URL
+          Pick 步驟偵測到既有 PR：$HAS_OPEN_PR
+          若已有既有 PR，URL：${EXISTING_PR_URL:-無}
           請先完整閱讀 Issue 內容與留言，再依需求實作 App。
 
           目前已經建立好工作分支：$ISSUE_BRANCH。請在這個分支上開發，不要切回 main。
