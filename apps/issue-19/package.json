@@ -1,0 +1,10 @@
+{
+  "name": "issue-19-open-moneybook",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "build": "node scripts/build.js"
+  }
+}
