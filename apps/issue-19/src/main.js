@@ -1,7 +1,7 @@
-import { addAllItems, addItem, deleteItem, ensureSeedData, getAll, openDB, putItem } from "./db.js";
+import { addBatch, addItem, deleteItem, ensureSeedData, getAll, openDB, putItem } from "./db.js";
 import { csvToTransactions, transactionsToCsv } from "./lib/csv.js";
 import { categoryTotals, dailyBalanceSeries, filterTransactionsByMonth, monthlyTotals } from "./lib/budget.js";
-import { formatCurrency, nowMonth, todayDate } from "./lib/date.js";
+import { formatCurrency, normalizeDateInput, nowMonth, todayDate } from "./lib/date.js";
 
 const state = {
   db: null,
@@ -68,8 +68,16 @@ function wireEvents() {
   elements.txForm.addEventListener("submit", async event => {
     event.preventDefault();
     const formData = new FormData(elements.txForm);
+    let normalizedDate = "";
+    try {
+      normalizedDate = normalizeDateInput(formData.get("date"));
+    } catch (error) {
+      showToast(error.message || "日期格式錯誤", "warn");
+      return;
+    }
+
     const payload = {
-      date: formData.get("date"),
+      date: normalizedDate,
       type: formData.get("type"),
       amount: Number(formData.get("amount")),
       categoryId: formData.get("category"),
@@ -79,7 +87,7 @@ function wireEvents() {
 
     const category = state.categories.find(item => item.id === payload.categoryId);
 
-    if (!payload.date || !payload.type || !payload.categoryId || !payload.account) {
+    if (!payload.type || !payload.categoryId || !payload.account) {
       showToast("請完整填寫必填欄位", "warn");
       return;
     }
@@ -180,14 +188,14 @@ function wireEvents() {
       const imported = csvToTransactions(text);
       const { newCategories, newTransactions } = buildImportBatch(imported);
 
-      if (newCategories.length) {
-        await addAllItems(state.db, "categories", newCategories);
-        state.categories.push(...newCategories);
-      }
-
-      if (newTransactions.length) {
-        await addAllItems(state.db, "transactions", newTransactions);
-        state.transactions = [...newTransactions, ...state.transactions].sort((a, b) => b.date.localeCompare(a.date));
+      if (newCategories.length || newTransactions.length) {
+        await addBatch(state.db, { categories: newCategories, transactions: newTransactions });
+        if (newCategories.length) {
+          state.categories.push(...newCategories);
+        }
+        if (newTransactions.length) {
+          state.transactions = [...newTransactions, ...state.transactions].sort((a, b) => b.date.localeCompare(a.date));
+        }
       }
 
       showToast(`成功匯入 ${newTransactions.length} 筆交易`);
