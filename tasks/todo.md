@@ -1,29 +1,30 @@
-# Issue 27 V1 Todo
+# Issue 19 V1 Todo
 
 ## Scope
-- Implement a Telegram bot that downloads videos via `yt-dlp` and returns them if within limits.
-- Enforce duration <= 60 minutes and file size <= Telegram Bot API limit.
-- Persist conversation logs, downloads, queue status, and user settings under `apps/issue-27/data/`.
-- Provide tests, README, and CI workflow.
+- Build a pure frontend Open Moneybook app in `apps/issue-19/` (HTML/CSS/JS, no framework).
+- Persist data in IndexedDB (transactions, budgets, categories seed).
+- Provide CSV import/export with the standard format (YYYY-MM-DD, income/expense, positive amount).
+- Provide dashboard summary, budget progress + over-budget alert, and basic charts.
+- Add PWA basics (manifest + service worker) and GitHub Pages-ready build.
+- Add README and CI workflow.
 
 ## Acceptance criteria (verifiable)
-- [ ] Valid URL triggers download via `yt-dlp` and returns a video to Telegram.
-- [ ] Video duration > 60 minutes returns an error before sending the file.
-- [ ] Video size above Telegram Bot API limit returns an error.
-- [ ] Single-download queue processes one job at a time and reports queue position.
-- [ ] Conversation logs, download logs, queue state, and user settings are persisted under `apps/issue-27/data/`.
+- [ ] Adding a $150 expense persists to IndexedDB and appears after reload.
+- [ ] Monthly summary totals (income, expense, balance) are correct for the selected month.
+- [ ] Budget $5000 for a category triggers an over-budget warning when exceeded.
+- [ ] CSV export matches the standard header and can be re-imported to restore records.
+- [ ] Data remains after closing and reopening the browser.
 
 ## Verification
-- [x] `cd apps/issue-27 && npm run lint`
-- [x] `cd apps/issue-27 && npm test`
-- [x] `cd apps/issue-27 && npm run build`
+- [x] `cd apps/issue-19 && npm test`
+- [x] `cd apps/issue-19 && npm run build`
 
 ## Assumptions
-- `yt-dlp` is installed and available on PATH (or `YT_DLP_PATH`).
-- Telegram Bot API file size limit remains 50 MB per available Bot API references.
+- Node.js 20+ is available for tests/build.
+- Browser supports IndexedDB and modern ES modules.
 
 ## Risks
-- Medium: external tools (`yt-dlp`, `ffprobe`) required at runtime.
+- Low: CSV parsing edge cases with quoted commas.
 
 ## Rollback notes
-- Revert files under `apps/issue-27/`, `.github/workflows/ci_27.yml`, and `tasks/todo.md`.
+- Revert files under `apps/issue-19/`, `.github/workflows/ci_19.yml`, and `tasks/todo.md`.
