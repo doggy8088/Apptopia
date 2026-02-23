@@ -1,4 +1,3 @@
-const CACHE_NAME = "treadmill-pace-v1";
 const ASSETS = [
   "./",
   "./index.html",
@@ -9,6 +8,17 @@ const ASSETS = [
   "./src/main.js",
   "./src/lib/pace.js"
 ];
+// Use a stable cache version derived from the asset list.
+const CACHE_NAME = `treadmill-pace-${hashAssets(ASSETS)}`;
+
+function hashAssets(assets) {
+  const input = assets.join("|");
+  let hash = 5381;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = ((hash << 5) + hash) ^ input.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(16);
+}
 
 self.addEventListener("install", event => {
   event.waitUntil(

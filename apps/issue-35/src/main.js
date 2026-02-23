@@ -63,7 +63,8 @@ function clearError() {
 
 function updateOutputs({ paceSeconds, speed }) {
   if (Number.isFinite(paceSeconds)) {
-    paceOutput.textContent = formatPace(paceSeconds);
+    const paceText = formatPace(paceSeconds);
+    paceOutput.textContent = paceText ?? "--";
   } else {
     paceOutput.textContent = "--";
   }
@@ -81,8 +82,9 @@ function convertFromSpeed() {
   if (!Number.isFinite(speedValue) || speedValue <= 0) {
     throw new Error("請輸入有效的時速數值");
   }
-  const pace = speedToPace(speedValue);
   const speed = Number(speedValue.toFixed(1));
+  const pace = speedToPace(speed);
+  speedInput.value = speed.toFixed(1);
   paceInput.value = formatPaceInput(pace);
   updateOutputs({ paceSeconds: pace.totalSeconds, speed });
 }
@@ -164,6 +166,7 @@ try {
   convertFromSpeed();
 } catch (error) {
   setError(error.message);
+  speedInput.value = "";
 }
 
 updateOfflineStatus();

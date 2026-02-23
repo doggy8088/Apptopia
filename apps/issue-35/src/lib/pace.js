@@ -1,6 +1,6 @@
 export function formatPace(totalSeconds) {
   if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) {
-    return "0'00\"";
+    return null;
   }
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = Math.round(totalSeconds % 60);
@@ -66,7 +66,7 @@ export function speedToPace(speed) {
   if (!Number.isFinite(speed) || speed <= 0) {
     throw new Error("時速必須大於 0");
   }
-  const totalSeconds = Math.round(3600 / speed);
+  const totalSeconds = 3600 / speed;
   return normalizePace(totalSeconds);
 }
 

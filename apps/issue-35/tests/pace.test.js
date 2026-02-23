@@ -21,3 +21,8 @@ test("pace format normalization", () => {
 test("invalid pace input", () => {
   assert.throws(() => parsePaceInput("abc"), /配速/);
 });
+
+test("format pace rejects invalid inputs", () => {
+  assert.equal(formatPace(-1), null);
+  assert.equal(formatPace(Number.NaN), null);
+});
