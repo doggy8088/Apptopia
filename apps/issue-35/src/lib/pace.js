@@ -66,7 +66,7 @@ export function speedToPace(speed) {
   if (!Number.isFinite(speed) || speed <= 0) {
     throw new Error("時速必須大於 0");
   }
-  const totalSeconds = 3600 / speed;
+  const totalSeconds = Number((3600 / speed).toFixed(1));
   return normalizePace(totalSeconds);
 }
 
