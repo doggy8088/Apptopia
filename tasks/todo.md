@@ -115,3 +115,24 @@
 
 ## Rollback notes
 - Revert `apps/issue-35/`, `.github/workflows/ci_35.yml`, and this section in `tasks/todo.md`.
+
+---
+
+# Repo Policy: Remove GitHub Pages Jobs (2026-02-23)
+
+## Scope
+- Remove GitHub Pages deploy jobs from workflows in `.github/workflows/`.
+- Ensure the example workflow template no longer includes GitHub Pages jobs.
+
+## Acceptance criteria (verifiable)
+- [x] No GitHub Pages-related actions (`actions/configure-pages`, `actions/upload-pages-artifact`, `actions/deploy-pages`) appear in `.github/workflows/`.
+- [x] No workflow permissions include `pages: write`.
+
+## Verification
+- [x] `rg -n "configure-pages|deploy-pages|upload-pages-artifact|pages: write|GitHub Pages" .github/workflows`
+
+## Risks
+- Low: Removing these jobs disables GitHub Pages deployments.
+
+## Rollback notes
+- Revert `.github/workflows/ci_8.yml`, `.github/workflows/ci_19.yml`, `.github/workflows/ci_example.yml.template`, and this section in `tasks/todo.md`.
