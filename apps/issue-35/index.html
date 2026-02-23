@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>跑步機速度 - 配速換算計算器</title>
+    <meta
+      name="description"
+      content="即時換算跑步機時速與跑者配速，支援離線使用與深綠色暗色主題。"
+    />
+    <meta name="theme-color" content="#0b2f25" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <div class="backdrop" aria-hidden="true"></div>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">TREADMILL · PACE · SPEED</p>
+        <h1>跑步機速度 × 配速換算計算器</h1>
+        <p class="subtitle">
+          在健身房也能精準掌握訓練節奏。支援雙向換算、離線使用與深綠色暗黑模式。
+        </p>
+      </div>
+      <div class="hero-status">
+        <div class="status-pill" id="offline-status">離線可用 · PWA Ready</div>
+        <div class="status-pill muted">精準到 1 位小數 / 秒</div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel" aria-labelledby="converter-title">
+        <div class="panel-head">
+          <h2 id="converter-title">輸入來源</h2>
+          <p>選擇你目前看到的數據，我們會立即換算另一側數值。</p>
+        </div>
+        <div class="mode-toggle" role="tablist" aria-label="選擇輸入來源">
+          <button type="button" class="mode-button active" data-mode="speed" aria-pressed="true">
+            時速 (km/h)
+          </button>
+          <button type="button" class="mode-button" data-mode="pace" aria-pressed="false">
+            配速 (min/km)
+          </button>
+        </div>
+
+        <form id="converter-form" class="converter" novalidate>
+          <div class="field-grid">
+            <label class="field" for="speed-input">
+              時速 (km/h)
+              <input
+                id="speed-input"
+                name="speed"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="0.1"
+                placeholder="10.0"
+                autocomplete="off"
+              />
+              <span class="hint">範圍建議 0.1 ~ 25.0</span>
+            </label>
+            <label class="field" for="pace-input">
+              配速 (min/km)
+              <input
+                id="pace-input"
+                name="pace"
+                type="text"
+                inputmode="numeric"
+                placeholder="6:10 或 610"
+                autocomplete="off"
+              />
+              <span class="hint">支援 610、6:10、4'30" 等格式</span>
+            </label>
+          </div>
+          <div class="inline-actions">
+            <button class="primary" type="submit">轉換</button>
+            <button class="ghost" type="button" id="reset-btn">重置</button>
+            <p id="error-message" class="error" role="alert" aria-live="polite"></p>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="quick-title">
+        <div class="panel-head">
+          <h2 id="quick-title">常用節奏快選</h2>
+          <p>依據目前輸入來源，快速帶入常見訓練節奏。</p>
+        </div>
+        <div id="quick-picks" class="quick-grid"></div>
+      </section>
+
+      <section class="panel results" aria-labelledby="result-title">
+        <div class="panel-head">
+          <h2 id="result-title">換算結果</h2>
+          <p>結果即時更新，並依深色模式調整對比。</p>
+        </div>
+        <div class="result-grid">
+          <article class="result-card" data-reveal="1">
+            <p class="result-label">配速</p>
+            <h3 id="pace-output">6'00"</h3>
+            <p class="result-meta">min/km</p>
+          </article>
+          <article class="result-card" data-reveal="2">
+            <p class="result-label">時速</p>
+            <h3 id="speed-output">10.0</h3>
+            <p class="result-meta">km/h</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel info" aria-labelledby="formula-title">
+        <div class="panel-head">
+          <h2 id="formula-title">換算公式</h2>
+          <p>速度與配速本質是一組倒數關係，系統會自動正規化秒數。</p>
+        </div>
+        <div class="formula-grid">
+          <div>
+            <p class="formula">速度 (km/h) = 60 ÷ 配速(分鐘)</p>
+            <p class="muted">例如：6'00" → 10.0 km/h</p>
+          </div>
+          <div>
+            <p class="formula">配速 (min/km) = 60 ÷ 時速</p>
+            <p class="muted">例如：12.0 km/h → 5'00"</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Issue #35 · PWA 離線支援 · 深綠色暗色主題</p>
+      <p class="muted">重新整理後仍可離線使用，適合地下室健身房場景。</p>
+    </footer>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
