@@ -131,23 +131,23 @@ jobs:
 
 ## 部署策略
 
+### 專案限制
+
+- 本專案不允許部署 GitHub Pages（包含純前端應用）。如需對外發布，請改用 GitHub Actions Artifacts 或先取得明確例外指示。
+
 ### 前端網頁應用程式
 
-**部署目標：GitHub Pages**
+**部署目標：Build Artifacts（本專案禁止 GitHub Pages）**
 
-對於純前端的網頁應用程式（HTML、CSS、JavaScript），應該部署到 GitHub Pages。
+對於純前端的網頁應用程式（HTML、CSS、JavaScript），本專案仍以 GitHub Actions Artifacts 發佈建置產物。
 
 #### 部署工作流程範例
 
 ```yaml
-  deploy:
+  package:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     
     steps:
       - uses: actions/checkout@v4
@@ -157,16 +157,12 @@ jobs:
         run: |
           # ... 建置指令
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          path: apps/issue-N/dist
-      
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+          name: issue-N-build
+          path: apps/issue-N/dist/
+          retention-days: 90
 ```
 
 **判斷標準：**
@@ -218,7 +214,7 @@ jobs:
 開始
   ↓
 是否為純前端應用？
-  ├─ 是 → 部署到 GitHub Pages
+  ├─ 是 → 上傳為 Build Artifacts（本專案禁止 GitHub Pages）
   └─ 否 → 
       ↓
   是否包含後端/API？
@@ -353,7 +349,7 @@ npx skills update
 
 4. **部署階段**
    - 根據應用程式類型選擇部署策略
-   - 前端應用：部署到 GitHub Pages
+   - 前端應用：上傳為 Build Artifacts（本專案禁止 GitHub Pages）
    - 後端/CLI：上傳 Build Artifacts
 
 5. **經驗累積**
@@ -377,7 +373,7 @@ npx skills update
 3. **使用方式**：如何執行應用程式
 4. **測試方式**：如何執行測試
 5. **建置方式**：如何建置應用程式
-6. **部署資訊**：如何存取已部署的應用程式
+6. **部署資訊**：如何取得或下載部署產物（Artifacts）
 7. **相關 Issue**：連結到原始 Issue
 
 ### 範例 README.md
@@ -420,7 +416,7 @@ npm run build
 
 ## 部署
 
-[部署資訊，例如 GitHub Pages URL 或如何下載 Artifacts]
+[部署資訊，例如如何下載 Artifacts]
 
 ## 相關連結
 
