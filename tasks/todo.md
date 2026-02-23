@@ -82,3 +82,36 @@
 
 ## Rollback notes
 - Revert `apps/issue-18/`, `.github/workflows/ci_18.yml`, and `tasks/todo.md`.
+
+---
+
+# Issue 35 V1 Treadmill Pace Converter
+
+## Scope
+- Build a static web app under `apps/issue-35/` with pace <-> speed conversion.
+- Support pace input formats: `mmss` (e.g. `610`) and `m:ss` (e.g. `6:10`).
+- Provide conversion results in cards plus validation and reset actions.
+- Implement dark green UI with system theme detection and PWA offline support.
+- Add README and CI workflow for issue-35.
+
+## Acceptance criteria (verifiable)
+- [ ] Input speed 10.0 km/h converts to pace `6'00"`.
+- [ ] Input speed 6.0 km/h converts to pace `10'00"`.
+- [ ] Input speed 15.0 km/h converts to pace `4'00"`.
+- [ ] Input pace `4'30"` (or `430`) converts to speed `13.3` km/h.
+- [ ] Invalid pace input (e.g. `abc`) shows an error and does not crash.
+- [ ] Offline refresh still loads the app and conversion works.
+- [ ] Dark mode styling matches the deep-green theme and maintains AA contrast.
+
+## Verification
+- [x] `cd apps/issue-35 && npm test`
+- [x] `cd apps/issue-35 && npm run build`
+
+## Assumptions
+- Static hosting on GitHub Pages is acceptable for offline PWA assets.
+
+## Risks
+- Low: service worker caching could stale assets during rapid iteration.
+
+## Rollback notes
+- Revert `apps/issue-35/`, `.github/workflows/ci_35.yml`, and this section in `tasks/todo.md`.

@@ -1,0 +1,16 @@
+{
+  "name": "跑步機速度 - 配速換算計算器",
+  "short_name": "配速換算",
+  "description": "即時換算跑步機時速與跑者配速，支援離線與深色模式。",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#06120e",
+  "theme_color": "#0b2f25",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
