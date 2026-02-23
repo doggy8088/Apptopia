@@ -1,0 +1,73 @@
+name: CI for Issue 35
+
+on:
+  push:
+    paths:
+      - "apps/issue-35/**"
+      - ".github/workflows/ci_35.yml"
+  pull_request:
+    paths:
+      - "apps/issue-35/**"
+      - ".github/workflows/ci_35.yml"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: apps/issue-35
+        run: npm ci
+
+      - name: Run tests
+        working-directory: apps/issue-35
+        run: npm test
+
+      - name: Build
+        working-directory: apps/issue-35
+        run: npm run build
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: apps/issue-35
+        run: npm ci
+
+      - name: Build
+        working-directory: apps/issue-35
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/issue-35/dist
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
