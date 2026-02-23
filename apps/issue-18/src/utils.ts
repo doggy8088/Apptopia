@@ -35,3 +35,11 @@ export function uniqueStrings(values: string[]): string[] {
 export function ensureTrailingSlash(value: string): string {
   return value.endsWith("/") ? value : `${value}/`;
 }
+
+export function isPathInside(basePath: string, targetPath: string): boolean {
+  const relative = path.relative(basePath, targetPath);
+  if (!relative) {
+    return true;
+  }
+  return !relative.startsWith("..") && !path.isAbsolute(relative);
+}

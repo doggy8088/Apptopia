@@ -1,7 +1,7 @@
 import path from "node:path";
 import { NoteIndex, resolveNoteTarget } from "./graph";
 import { AssetRef, Note, RenderResult } from "./types";
-import { isImageFile, slugify, toPosixPath } from "./utils";
+import { isImageFile, isPathInside, slugify, toPosixPath } from "./utils";
 
 interface ConverterContext {
   vaultPath: string;
@@ -50,6 +50,10 @@ export function renderNote(note: Note, context: ConverterContext, stack: Set<str
         return `> [Skipped unsafe asset: ${cleaned}]`;
       }
       const assetPath = path.resolve(context.vaultPath, safeRelative);
+      if (!isPathInside(context.vaultPath, assetPath)) {
+        warnings.push(`Skipped asset outside vault: ${cleaned}`);
+        return `> [Skipped unsafe asset: ${cleaned}]`;
+      }
       const outputRelativePath = toPosixPath(safeRelative);
       assets.push({ sourcePath: assetPath, outputRelativePath: path.posix.join("assets", outputRelativePath) });
       const altText = path.basename(cleaned, path.extname(cleaned));
@@ -135,6 +139,10 @@ function sanitizeRelativePath(inputPath: string): string | null {
     return null;
   }
   if (/^[A-Za-z]:[\\/]/.test(trimmed) || /^\\\\/.test(trimmed)) {
+    return null;
+  }
+  const rawSegments = trimmed.split(/[\\/]+/).filter(Boolean);
+  if (rawSegments.some((segment) => segment === "..")) {
     return null;
   }
   const normalized = path.normalize(trimmed).replace(/^([./\\])+/, "");

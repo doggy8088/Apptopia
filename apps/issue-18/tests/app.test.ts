@@ -149,6 +149,26 @@ describe("obsidian-book-compiler", () => {
     ).rejects.toThrow("Invalid config file");
   });
 
+  it("skips unsafe embedded asset paths", async () => {
+    const outputDir = await createTempDir();
+    const capture = createCapture();
+
+    await runWithOptions(
+      {
+        vault: vaultPath,
+        topic: "#python",
+        outputDir,
+        outputFormat: "markdown",
+        dryRun: false
+      },
+      capture.io
+    );
+
+    const book = await readBook(outputDir);
+    expect(book).toContain("Skipped unsafe asset");
+    expect(capture.getStderr()).toContain("Skipped unsafe asset path: ../outside.png");
+  });
+
   it("supports dry-run preview", async () => {
     const outputDir = await createTempDir();
     const capture = createCapture();
