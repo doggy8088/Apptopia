@@ -49,3 +49,4 @@ temp/
 *.tmp
 
 tasks/
+issues_data.json
