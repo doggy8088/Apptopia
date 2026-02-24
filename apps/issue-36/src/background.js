@@ -5,6 +5,8 @@ import { normalizeWord, inferGrammar } from './shared/linguist.js';
 const MENU_ID = 'linguistflow-add-to-notion';
 const QUEUE_ALARM = 'linguistflow-queue';
 const STATUS_DEFAULT = 'New';
+const QUEUE_RATE_LIMIT_MS = 350;
+const QUEUE_MAX_ATTEMPTS = 10;
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -154,13 +156,28 @@ async function processQueue() {
     try {
       await postNotionPage({ apiKey: settings.notionApiKey, payload: item.payload });
     } catch (error) {
-      remaining.push({
-        ...item,
-        attempts: (item.attempts || 0) + 1,
-        lastError: error.message || 'Unknown error'
-      });
+      if (isRetryableError(error) && (item.attempts || 0) < QUEUE_MAX_ATTEMPTS) {
+        remaining.push({
+          ...item,
+          attempts: (item.attempts || 0) + 1,
+          lastError: error.message || 'Unknown error'
+        });
+      }
+    } finally {
+      await delay(QUEUE_RATE_LIMIT_MS);
     }
   }
 
   await saveQueue(remaining);
+}
+
+function isRetryableError(error) {
+  if (isOfflineError(error)) return true;
+  const status = error?.status;
+  if (!status) return false;
+  return status === 429 || status >= 500;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
