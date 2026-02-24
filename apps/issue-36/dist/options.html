@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LinguistFlow Settings</title>
+    <link rel="stylesheet" href="options.css" />
+    <script type="module" src="options.js"></script>
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <header>
+          <p class="eyebrow">LinguistFlow</p>
+          <h1>Notion Integration</h1>
+          <p class="subtitle">Configure your API key, database, and translation fallback.</p>
+        </header>
+        <form id="settings-form">
+          <label>
+            <span>Notion API Key</span>
+            <input type="password" name="notionApiKey" placeholder="secret_..." autocomplete="off" />
+          </label>
+          <label>
+            <span>Notion Database ID</span>
+            <input type="text" name="notionDatabaseId" placeholder="xxxxxxxxxxxx" autocomplete="off" />
+          </label>
+          <label>
+            <span>Google Translate API Key (optional)</span>
+            <input type="password" name="googleTranslateApiKey" placeholder="AIza..." autocomplete="off" />
+          </label>
+          <label>
+            <span>Status Property Type</span>
+            <select name="statusPropertyType">
+              <option value="status">Status</option>
+              <option value="select">Select</option>
+            </select>
+          </label>
+          <button type="submit">Save Settings</button>
+          <p id="status" class="status" role="status"></p>
+        </form>
+        <section class="tips">
+          <h2>Quick Tips</h2>
+          <ul>
+            <li>Database should contain Word (title), Definition (rich_text), Context (rich_text), Grammar (select), Status (status/select).</li>
+            <li>Enable YouTube captions to populate the overlay and allow selection.</li>
+            <li>If Google Translate is not configured, LinguistFlow will attempt Gemini Nano (window.ai) if available.</li>
+          </ul>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

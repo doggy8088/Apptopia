@@ -136,3 +136,32 @@
 
 ## Rollback notes
 - Revert `.github/workflows/ci_8.yml`, `.github/workflows/ci_19.yml`, `.github/workflows/ci_example.yml.template`, and this section in `tasks/todo.md`.
+
+---
+
+# Issue 36 V1 LinguistFlow
+
+## Scope
+- Build a Chrome MV3 extension under `apps/issue-36/` for selecting YouTube captions and writing to Notion.
+- Provide a Shadow DOM caption overlay, context menu action, and Notion API integration.
+- Store settings and offline queue locally with retry.
+- Provide README, tests, and CI workflow for issue-36.
+
+## Acceptance criteria (verifiable)
+- [ ] Selecting caption text and triggering "Add to Notion" creates a Notion payload with Word/Definition/Context/Grammar/Status.
+- [ ] Overlay remains anchored when entering fullscreen and remains selectable.
+- [ ] Offline failures enqueue items for retry and do not crash.
+
+## Verification
+- [x] `cd apps/issue-36 && npm test`
+- [x] `cd apps/issue-36 && npm run build`
+
+## Assumptions
+- Users enable YouTube captions to populate the overlay.
+- Notion database fields match the expected names.
+
+## Risks
+- Medium: YouTube DOM changes can affect caption scraping.
+
+## Rollback notes
+- Revert `apps/issue-36/`, `.github/workflows/ci_36.yml`, and this section in `tasks/todo.md`.
