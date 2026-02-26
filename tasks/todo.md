@@ -1,3 +1,30 @@
+# Issue 42 V1 Skill/Agent Analyzer Generator
+
+## Scope
+- Build a Node.js + TypeScript CLI tool under `apps/issue-42/` for analyzing project docs, mapping capabilities, comparing registries, generating skill/agent definitions, and producing execution plans.
+- Support subcommands: `analyze`, `compare`, `generate`, `init-registry`, `validate-registry`, `plan`, `export`.
+- Provide JSON/YAML/Markdown outputs with file/dir output options and clear error handling with non-zero exit codes.
+- Add tests, README, and CI workflow for issue-42.
+
+## Acceptance criteria (verifiable)
+- [ ] `analyze` returns structured project summary and required capabilities when provided valid docs.
+- [ ] `compare` marks coverage as covered/partial/missing with a valid registry.
+- [ ] `generate` produces at least one skill or agent definition for missing capabilities.
+- [ ] `plan` outputs ordered steps with owners and dependencies.
+- [ ] `validate-registry` rejects invalid schema with clear errors and non-zero exit code.
+
+## Verification
+- [x] `cd apps/issue-42 && npm test`
+- [x] `cd apps/issue-42 && npm run build`
+
+## Risks
+- Low: heuristic-based parsing may misclassify edge cases; mitigated by clear warnings.
+
+## Rollback notes
+- Revert `apps/issue-42/`, `.github/workflows/ci_42.yml`, and this section in `tasks/todo.md`.
+
+---
+
 # Issue 27 V1 Todo
 
 ## Scope
