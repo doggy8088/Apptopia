@@ -165,7 +165,7 @@ function validateContent(text: string): void {
   }
 }
 
-export function analyzeText(text: string, sources: string[]): AnalysisResult {
+export function analyzeText(text: string, sources: string[], now: Date = new Date()): AnalysisResult {
   validateContent(text);
   const capabilities = extractCapabilities(text);
 
@@ -178,6 +178,6 @@ export function analyzeText(text: string, sources: string[]): AnalysisResult {
     dependencies: extractDependencies(text),
     risks: extractRisks(text),
     sourceFiles: sources,
-    createdAt: new Date().toISOString()
+    createdAt: now.toISOString()
   };
 }

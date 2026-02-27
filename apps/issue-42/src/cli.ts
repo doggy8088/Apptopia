@@ -254,7 +254,14 @@ async function run(): Promise<void> {
       throw new Error("Error: export requires --input or --analysis file path.");
     }
     const data = readJsonOrYaml(inputPath);
-    const content = format === "yaml" ? formatYaml(data) : format === "md" ? formatJson(data) : formatJson(data);
+    let content: string;
+    if (format === "yaml") {
+      content = formatYaml(data);
+    } else if (format === "json") {
+      content = formatJson(data);
+    } else {
+      throw new Error("Error: Markdown format is not supported for the 'export' command.");
+    }
     writeOutput(content, outputPath, dryRun);
     return;
   }

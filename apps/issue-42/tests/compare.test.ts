@@ -11,7 +11,7 @@ const registryPath = path.join(__dirname, "fixtures", "registry.json");
 describe("compareCapabilities", () => {
   it("marks coverage with registry", () => {
     const text = fs.readFileSync(fixturePath, "utf8");
-    const analysis = analyzeText(text, [fixturePath]);
+    const analysis = analyzeText(text, [fixturePath], new Date("2024-01-01T00:00:00.000Z"));
     const registry = JSON.parse(fs.readFileSync(registryPath, "utf8")) as RegistryData;
 
     const report = compareCapabilities(analysis.requiredCapabilities, registry);
