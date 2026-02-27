@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "skills": [
+    {
+      "name": "requirement-analysis-skill",
+      "category": "analysis",
+      "version": "1.0.0"
+    },
+    {
+      "name": "capability-mapping-skill",
+      "category": "planning",
+      "version": "1.0.0"
+    }
+  ],
+  "agents": [
+    {
+      "name": "execution-planning-agent",
+      "role": "Execution planning and orchestration"
+    }
+  ]
+}
