@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f2c14e" />
+    <title>PixelNest 像素窩</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">PixelNest / 像素窩</p>
+          <h1>讓筆記回到房間裡的溫度</h1>
+          <p class="subtitle">用像素房間與 AI 小精靈整理你的生活與靈感。</p>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <span class="stat-label">Coins</span>
+            <span id="coinCount" class="stat-value">0</span>
+          </div>
+          <div>
+            <span class="stat-label">Inbox</span>
+            <span id="inboxCount" class="stat-value">0</span>
+          </div>
+          <button id="installButton" class="ghost" type="button">安裝 PWA</button>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="panel">
+          <h2>Inbox 玄關便條</h2>
+          <p class="panel-hint">點擊像素小精靈或下方按鈕開始自動整理。</p>
+          <div class="inbox-input">
+            <input id="newInboxText" type="text" placeholder="新增便條：例如『買兩瓶鮮奶』" />
+            <button id="addInbox" type="button">放到玄關</button>
+          </div>
+          <ul id="inboxList" class="note-list"></ul>
+          <div class="panel-actions">
+            <button id="autoSort" type="button" class="primary">Auto-Sort</button>
+            <button id="exportZip" type="button" class="ghost">完整匯出 ZIP</button>
+          </div>
+          <div id="agentStatus" class="status"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Pixel Agent 設定</h2>
+          <div class="field">
+            <label for="provider">LLM Provider</label>
+            <select id="provider">
+              <option value="gemini">Google Gemini</option>
+              <option value="openai">OpenAI</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="model">Model</label>
+            <input id="model" type="text" placeholder="gemini-1.5-flash 或 gpt-4o-mini" />
+          </div>
+          <div class="field">
+            <label for="apiKey">API Key (BYOK)</label>
+            <input id="apiKey" type="password" placeholder="貼上你的 API Key" />
+          </div>
+          <div class="field inline">
+            <input id="allowFallback" type="checkbox" />
+            <label for="allowFallback">LLM 失敗時使用本地分類</label>
+          </div>
+          <div class="panel-actions">
+            <button id="saveSettings" type="button" class="ghost">儲存設定</button>
+          </div>
+          <div class="status" id="settingsStatus"></div>
+        </section>
+
+        <section class="panel room-panel">
+          <div class="room-header">
+            <h2>Pixel 房間</h2>
+            <p class="panel-hint">點擊家具開啟 Markdown 編輯器。</p>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="roomCanvas" width="960" height="540" aria-label="Pixel room"></canvas>
+            <div class="legend">
+              <span>門口 / Inbox</span>
+              <span>書桌 / 工作</span>
+              <span>床鋪 / 日記</span>
+              <span>書櫃 / 學習</span>
+              <span>冰箱 / 購物</span>
+            </div>
+          </div>
+          <div id="rewardToast" class="reward">+10 coins</div>
+        </section>
+      </main>
+    </div>
+
+    <div id="editorModal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <header>
+          <div>
+            <p id="folderLabel" class="eyebrow">Folder</p>
+            <h2 id="folderTitle">工作 / 書桌</h2>
+          </div>
+          <button id="closeEditor" type="button" class="ghost">關閉</button>
+        </header>
+        <div class="modal-body">
+          <aside>
+            <button id="newNote" type="button" class="primary">新增筆記</button>
+            <ul id="noteList" class="note-list"></ul>
+          </aside>
+          <section class="editor">
+            <input id="noteTitle" type="text" placeholder="筆記標題" />
+            <textarea id="noteContent" placeholder="# 開始寫筆記...\n- [ ] 待辦事項"></textarea>
+            <div class="panel-actions">
+              <button id="saveNote" type="button" class="primary">儲存筆記</button>
+              <button id="deleteNote" type="button" class="ghost">刪除</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script src="vendor/jszip.min.js"></script>
+    <script src="src/app.js"></script>
+  </body>
+</html>

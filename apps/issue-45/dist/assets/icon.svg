@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192" role="img" aria-label="PixelNest icon">
+  <rect width="192" height="192" rx="28" fill="#f2c14e" />
+  <rect x="28" y="70" width="136" height="94" fill="#fff2c9" stroke="#2a241b" stroke-width="6" />
+  <rect x="68" y="108" width="56" height="56" fill="#f28c6f" stroke="#2a241b" stroke-width="6" />
+  <polygon points="24,74 96,24 168,74" fill="#4b7f52" stroke="#2a241b" stroke-width="6" />
+  <rect x="38" y="84" width="36" height="24" fill="#f6efe4" stroke="#2a241b" stroke-width="4" />
+</svg>

@@ -1,0 +1,347 @@
+:root {
+  color-scheme: light;
+  --bg: #f6efe4;
+  --bg-accent: #ead9c4;
+  --panel: #fff9f0;
+  --ink: #1e1b16;
+  --muted: #6b6257;
+  --accent: #f2c14e;
+  --accent-2: #4b7f52;
+  --accent-3: #f28c6f;
+  --border: #2a241b;
+  --shadow: 6px 6px 0 #2a241b;
+  --radius: 16px;
+  font-size: 16px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Space Grotesk", "Press Start 2P", system-ui, sans-serif;
+  background: radial-gradient(circle at top left, #fff6dd 0%, var(--bg) 45%, #e7d7c4 100%);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(255, 255, 255, 0.3) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.25) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(255, 255, 255, 0.25) 25%, transparent 25%);
+  background-position: 12px 0, 12px 0, 0 0, 0 0;
+  background-size: 24px 24px;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-shell {
+  position: relative;
+  z-index: 1;
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.hero h1 {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-size: 1.6rem;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 520px;
+}
+
+.hero-stats {
+  display: grid;
+  gap: 12px;
+  min-width: 220px;
+  padding: 16px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  font-size: 1.1rem;
+  display: block;
+  margin-top: 6px;
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.panel {
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: floatIn 0.8s ease;
+}
+
+.room-panel {
+  grid-column: 1 / -1;
+}
+
+.panel h2 {
+  font-size: 1.1rem;
+}
+
+.panel-hint {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.inbox-input {
+  display: flex;
+  gap: 12px;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  width: 100%;
+}
+
+textarea {
+  min-height: 260px;
+  resize: vertical;
+}
+
+button {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  border: 2px solid var(--border);
+  background: var(--accent);
+  color: var(--ink);
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+button:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+button.primary {
+  background: var(--accent-2);
+  color: #fef8e5;
+}
+
+button.ghost {
+  background: #fff;
+}
+
+.note-list {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.note-list li {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px dashed var(--border);
+  background: #fffdf7;
+  font-size: 0.95rem;
+}
+
+.note-list li.active {
+  border-style: solid;
+  background: #fff2c9;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.status {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff2c9;
+  font-size: 0.9rem;
+  min-height: 42px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field.inline {
+  grid-auto-flow: column;
+  align-items: center;
+  justify-content: start;
+  gap: 12px;
+}
+
+.canvas-wrap {
+  position: relative;
+  background: linear-gradient(145deg, #f7e8d8 0%, #eed1b1 100%);
+  border-radius: 18px;
+  padding: 16px;
+  border: 2px solid var(--border);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
+#roomCanvas {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: #fef0dd;
+  image-rendering: pixelated;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+.reward {
+  align-self: flex-end;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--accent-3);
+  color: #fff;
+  font-size: 0.9rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.reward.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 27, 22, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: var(--panel);
+  border-radius: 18px;
+  border: 2px solid var(--border);
+  width: min(980px, 96vw);
+  max-height: 90vh;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 16px;
+}
+
+.modal-content header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  display: grid;
+  grid-template-columns: minmax(200px, 240px) 1fr;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.editor {
+  display: grid;
+  gap: 12px;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .modal-body {
+    grid-template-columns: 1fr;
+  }
+
+  .inbox-input {
+    flex-direction: column;
+  }
+}

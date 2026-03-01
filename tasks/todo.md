@@ -25,6 +25,37 @@
 
 ---
 
+# Issue 45 PixelNest PWA
+
+## Scope
+- Build a static PWA under `apps/issue-45/` with a canvas-rendered pixel room, four interactive furniture zones, and a Markdown editor modal.
+- Implement local-first storage for notes, an Inbox with sample notes, and a Pixel Agent auto-sort flow with BYOK LLM calls.
+- Provide ZIP export of all `.md` notes, offline cache via service worker, and minimal animations for agent movement and rewards.
+- Add tests, README, and CI workflow for issue-45.
+
+## Acceptance criteria (verifiable)
+- [ ] Offline refresh still shows the room and previously saved notes.
+- [ ] Clicking each furniture zone opens the editor for its folder and saves Markdown to local storage.
+- [ ] Inbox auto-sort triggers an LLM request when a BYOK key is set and moves notes to the correct folders.
+- [ ] Agent animation plays the pickup/move/drop sequence during auto-sort.
+- [ ] Checking a todo item from `[ ]` to `[x]` triggers a coin reward animation.
+- [ ] Export downloads a ZIP containing the folder structure and `.md` files.
+
+## Verification
+- [x] `cd apps/issue-45 && npm test`
+- [x] `cd apps/issue-45 && npm run build`
+
+## Assumptions
+- Users provide a valid Gemini or OpenAI API key to enable LLM auto-sort.
+
+## Risks
+- Medium: LLM API responses may be slow or malformed, so fallbacks are required.
+
+## Rollback notes
+- Revert `apps/issue-45/`, `.github/workflows/ci_45.yml`, and this section in `tasks/todo.md`.
+
+---
+
 # Issue 27 V1 Todo
 
 ## Scope

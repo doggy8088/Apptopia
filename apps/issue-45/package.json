@@ -1,0 +1,10 @@
+{
+  "name": "issue-45-pixelnest",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PixelNest (像素窩) - AI 代理遊戲化空間筆記 PWA",
+  "scripts": {
+    "test": "node tests/validate.js",
+    "build": "node scripts/build.js"
+  }
+}
