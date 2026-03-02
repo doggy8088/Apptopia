@@ -50,7 +50,6 @@ const DEFAULT_STATE = {
   settings: {
     provider: "gemini",
     model: "gemini-1.5-flash",
-    apiKey: "",
     allowFallback: true
   },
   game: {
@@ -64,7 +63,12 @@ const SAMPLE_INBOX = [
   "今天看了很棒的電影"
 ];
 
+let legacyApiKeyDetected = false;
 let state = loadState();
+let sessionApiKey = "";
+if (legacyApiKeyDetected) {
+  saveState();
+}
 let currentFolder = "desk";
 let currentNoteId = null;
 let installPromptEvent = null;
@@ -123,7 +127,12 @@ function loadState() {
     const merged = structuredClone(DEFAULT_STATE);
     merged.folders = { ...merged.folders, ...(parsed.folders || {}) };
     merged.inbox = Array.isArray(parsed.inbox) ? parsed.inbox : merged.inbox;
-    merged.settings = { ...merged.settings, ...(parsed.settings || {}) };
+    const parsedSettings = parsed.settings || {};
+    const { apiKey: legacyApiKey, ...safeSettings } = parsedSettings;
+    if (legacyApiKey) {
+      legacyApiKeyDetected = true;
+    }
+    merged.settings = { ...merged.settings, ...safeSettings };
     merged.game = { ...merged.game, ...(parsed.game || {}) };
     return merged;
   } catch (error) {
@@ -133,7 +142,9 @@ function loadState() {
 }
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const { apiKey: _ignored, ...safeSettings } = state.settings;
+  const safeState = { ...state, settings: safeSettings };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(safeState));
 }
 
 function ensureSamples() {
@@ -276,14 +287,14 @@ function showStatus(message, target = elements.agentStatus) {
 function setupSettings() {
   elements.provider.value = state.settings.provider;
   elements.model.value = state.settings.model;
-  elements.apiKey.value = state.settings.apiKey;
+  elements.apiKey.value = "";
   elements.allowFallback.checked = state.settings.allowFallback;
 }
 
 function saveSettings() {
   state.settings.provider = elements.provider.value;
   state.settings.model = elements.model.value.trim();
-  state.settings.apiKey = elements.apiKey.value.trim();
+  sessionApiKey = elements.apiKey.value.trim();
   state.settings.allowFallback = elements.allowFallback.checked;
   saveState();
   showStatus("設定已儲存。", elements.settingsStatus);
@@ -399,7 +410,7 @@ async function autoSortInbox() {
   showStatus("Pixel Agent 準備整理...請稍候。");
 
   let plan;
-  const hasKey = Boolean(state.settings.apiKey);
+  const hasKey = Boolean(sessionApiKey);
   if (hasKey) {
     try {
       plan = await requestSortPlan();
@@ -472,13 +483,13 @@ async function requestSortPlan() {
 
 function buildSortPrompt() {
   const notes = state.inbox.map((note) => ({ id: note.id, text: note.content }));
-  return `你是 PixelNest 的整理小精靈。請將以下便條分類到四個資料夾：desk(工作)、bed(日記)、shelf(學習)、fridge(購物)。\n\n請只回傳 JSON 陣列，格式如下：\n[{"id":"note_id","destination":"desk","reason":"原因"}]\n\n待分類便條：${JSON.stringify(notes, null, 2)}`;
+  return `你是 PixelNest 的整理小精靈。請將以下便條分類到四個資料夾：desk(工作)、bed(日記)、shelf(學習)、fridge(購物)。\n\n請只回傳 JSON 陣列，並用 \`\`\`json ... \`\`\` 包起來，格式如下：\n\`\`\`json\n[{\"id\":\"note_id\",\"destination\":\"desk\",\"reason\":\"原因\"}]\n\`\`\`\n\n待分類便條：${JSON.stringify(notes, null, 2)}`;
 }
 
 async function requestGemini(prompt) {
   const model = state.settings.model || "gemini-1.5-flash";
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.settings.apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${sessionApiKey}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -504,7 +515,7 @@ async function requestOpenAI(prompt) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${state.settings.apiKey}`
+      Authorization: `Bearer ${sessionApiKey}`
     },
     body: JSON.stringify({
       model,
@@ -529,8 +540,9 @@ async function requestOpenAI(prompt) {
 }
 
 function parsePlan(text) {
-  const jsonMatch = text.match(/\[\s*{[\s\S]*}\s*\]/);
-  const jsonText = jsonMatch ? jsonMatch[0] : text;
+  const fencedMatch = text.match(/```json\s*([\s\S]*?)\s*```/i);
+  const fallbackMatch = text.match(/\[\s*{[\s\S]*}\s*\]/);
+  const jsonText = fencedMatch ? fencedMatch[1] : fallbackMatch ? fallbackMatch[0] : text;
   const parsed = JSON.parse(jsonText);
   return parsed.map((item) => ({
     id: item.id,
