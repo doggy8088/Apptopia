@@ -71,7 +71,7 @@ jobs:
 
           [profiles.aoai]
           model_provider          = "azure"
-          model                   = "gpt-5.2-codex"
+          model                   = "gpt-5.4"
           preferred_auth_method   = "apikey"
           wire_api                = "responses"
           model_reasoning_effort  = "high"
